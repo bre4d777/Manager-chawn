@@ -66,10 +66,10 @@ class SetProfileCommand extends Command {
       time: 300_000,
       filter: (i) => {
         if (i.user.id !== ctx.author.id) {
-          i.reply({
+          void i.reply({
             content: `${emoji.cross} Not your command dude, Use ur own command `,
             flags: MessageFlags.Ephemeral,
-          });
+          }).catch(() => {});
           return false;
         }
         return true;
