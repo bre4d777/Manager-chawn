@@ -116,7 +116,10 @@ class UnbanCommand extends Command {
       });
     }
 
-    const auditReason = `Unbanned by ${ctx.user.tag} (${ctx.user.id}) | ${reason}`;
+    const prefix = `Unbanned by ${ctx.user.tag} (${ctx.user.id}) | `;
+ const maxAuditLen = 512;
+   const safeReason = reason.slice(0, Math.max(0, maxAuditLen - prefix.length));
+   const auditReason = `${prefix}${safeReason}`;
 
     try {
       await ctx.guild.members.unban(rawId, auditReason);
