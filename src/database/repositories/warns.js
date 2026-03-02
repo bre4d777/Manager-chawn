@@ -1,12 +1,12 @@
-import { eq, and, desc } from 'drizzle-orm';
-import { getDatabase } from '#db/drizzle';
-import { warns, warnConfig } from '#dbSchema/index';
-import { client } from '#src/bot';
+import { eq, and, desc } from "drizzle-orm";
+import { getDatabase } from "#db/drizzle";
+import { warns, warnConfig } from "#dbSchema/index";
+import { client } from "#src/bot";
 
-const WARN_CACHE_TTL    = 300;
-const CONFIG_CACHE_TTL  = 3600;
-const WARN_PREFIX       = 'warns:';
-const CONFIG_PREFIX     = 'warnconfig:';
+const WARN_CACHE_TTL = 300;
+const CONFIG_CACHE_TTL = 3600;
+const WARN_PREFIX = "warns:";
+const CONFIG_PREFIX = "warnconfig:";
 
 export class WarnRepository {
   constructor() {
@@ -25,7 +25,7 @@ export class WarnRepository {
 
   async getWarns(guildId, userId) {
     const cacheKey = `${WARN_PREFIX}${guildId}:${userId}`;
-    const cached   = await client.c.get(cacheKey);
+    const cached = await client.c.get(cacheKey);
     if (cached !== null && cached !== undefined) return cached;
 
     const result = await this.db
@@ -48,7 +48,9 @@ export class WarnRepository {
   }
 
   async removeWarn(id, guildId, userId) {
-    await this.db.delete(warns).where(and(eq(warns.id, id), eq(warns.guildId, guildId)));
+    await this.db
+      .delete(warns)
+      .where(and(eq(warns.id, id), eq(warns.guildId, guildId)));
     await client.c.del(`${WARN_PREFIX}${guildId}:${userId}`);
   }
 
@@ -61,7 +63,7 @@ export class WarnRepository {
 
   async getConfig(guildId) {
     const cacheKey = `${CONFIG_PREFIX}${guildId}`;
-    const cached   = await client.c.get(cacheKey);
+    const cached = await client.c.get(cacheKey);
     if (cached !== null && cached !== undefined) return cached;
 
     const [row] = await this.db
@@ -81,7 +83,7 @@ export class WarnRepository {
       .values({ guildId, thresholds, updatedAt: new Date() })
       .onConflictDoUpdate({
         target: warnConfig.guildId,
-        set:    { thresholds, updatedAt: new Date() },
+        set: { thresholds, updatedAt: new Date() },
       });
 
     await client.c.del(`${CONFIG_PREFIX}${guildId}`);

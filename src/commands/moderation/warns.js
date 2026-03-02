@@ -1,4 +1,4 @@
-import { Command } from '#command';
+import { Command } from "#command";
 import {
   MessageFlags,
   ContainerBuilder,
@@ -9,11 +9,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
   PermissionFlagsBits,
-} from 'discord.js';
-import { config } from '#config';
-import { disableComponents, logger } from '#utils';
-import { db } from '#dbManager';
-
+} from "discord.js";
+import { config } from "#config";
+import { disableComponents, logger } from "#utils";
+import { db } from "#dbManager";
 
 const { colors } = config;
 
@@ -22,21 +21,26 @@ const PAGE_SIZE = 8;
 class WarningsCommand extends Command {
   constructor() {
     super({
-      name: 'warnings',
-      description: 'View warnings for a member',
-      usage: 'warnings <user>',
-      examples: ['warnings @user'],
-      aliases: ['warns', 'infractions'],
+      name: "warnings",
+      description: "View warnings for a member",
+      usage: "warnings <user>",
+      examples: ["warnings @user"],
+      aliases: ["warns", "infractions"],
       cooldown: 5,
-      permissions:     [PermissionFlagsBits.ModerateMembers],
+      permissions: [PermissionFlagsBits.ModerateMembers],
       userPermissions: [PermissionFlagsBits.ModerateMembers],
       enabledSlash: true,
       slashData: {
-        name: ['mod', 'warnings'],
-        description: 'View warnings for a member',
+        name: ["mod", "warnings"],
+        description: "View warnings for a member",
         defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         options: [
-          { name: 'user', description: 'Member to view warnings for', type: 6, required: true },
+          {
+            name: "user",
+            description: "Member to view warnings for",
+            type: 6,
+            required: true,
+          },
         ],
       },
     });
@@ -45,14 +49,16 @@ class WarningsCommand extends Command {
   async execute({ ctx }) {
     if (!ctx.inGuild()) {
       return ctx.reply({
-        components: [_errorView('This command can only be used in a server.')],
+        components: [_errorView("This command can only be used in a server.")],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       return ctx.reply({
-        components: [_errorView('You do not have permission to view warnings.')],
+        components: [
+          _errorView("You do not have permission to view warnings."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -60,18 +66,24 @@ class WarningsCommand extends Command {
     let target;
 
     if (ctx.isSlash) {
-      target = ctx.options.getUser('user', true);
+      target = ctx.options.getUser("user", true);
     } else {
       const [rawUser] = ctx.args;
 
       if (!rawUser) {
         return ctx.reply({
-          components: [_errorView('Please provide a member.\n\n**Usage:** `warnings <user>`')],
+          components: [
+            _errorView(
+              "Please provide a member.\n\n**Usage:** `warnings <user>`",
+            ),
+          ],
           flags: MessageFlags.IsComponentsV2,
         });
       }
 
-      target = await ctx.client.users.fetch(rawUser.replace(/\D/g, '')).catch(() => null);
+      target = await ctx.client.users
+        .fetch(rawUser.replace(/\D/g, ""))
+        .catch(() => null);
       if (!target) {
         return ctx.reply({
           components: [_errorView(`Could not find user \`${rawUser}\`.`)],
@@ -95,22 +107,33 @@ class WarningsCommand extends Command {
 }
 
 function _buildView(target, allWarns, page) {
-  const container  = new ContainerBuilder();
+  const container = new ContainerBuilder();
   const totalPages = Math.max(1, Math.ceil(allWarns.length / PAGE_SIZE));
-  const safePage   = Math.max(0, Math.min(page, totalPages - 1));
-  const pageWarns  = allWarns.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const safePage = Math.max(0, Math.min(page, totalPages - 1));
+  const pageWarns = allWarns.slice(
+    safePage * PAGE_SIZE,
+    safePage * PAGE_SIZE + PAGE_SIZE,
+  );
 
-  container.setAccentColor(allWarns.length > 0 ? (config.colors.warning ?? 0xf39c12) : (config.colors.success ?? 0x2ecc71));
+  container.setAccentColor(
+    allWarns.length > 0
+      ? (config.colors.warning ?? 0xf39c12)
+      : (config.colors.success ?? 0x2ecc71),
+  );
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent(`## Warnings — ${target.tag}`),
   );
   container.addSeparatorComponents(
-    new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    new SeparatorBuilder()
+      .setSpacing(SeparatorSpacingSize.Small)
+      .setDivider(true),
   );
 
   if (allWarns.length === 0) {
     container.addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`**${target.tag}** has no warnings in this server.`),
+      new TextDisplayBuilder().setContent(
+        `**${target.tag}** has no warnings in this server.`,
+      ),
     );
     return container;
   }
@@ -122,8 +145,8 @@ function _buildView(target, allWarns, page) {
 
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent(
-      lines.join('\n\n') +
-      `\n\n-# ${allWarns.length} total warn${allWarns.length === 1 ? '' : 's'} • Page ${safePage + 1}/${totalPages}`,
+      lines.join("\n\n") +
+        `\n\n-# ${allWarns.length} total warn${allWarns.length === 1 ? "" : "s"} • Page ${safePage + 1}/${totalPages}`,
     ),
   );
 
@@ -134,20 +157,20 @@ function _buildView(target, allWarns, page) {
       new ButtonBuilder()
         .setCustomId(`warnings|prev|${safePage}`)
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji('◀️')
+        .setEmoji("◀️")
         .setDisabled(safePage === 0),
       new ButtonBuilder()
         .setCustomId(`warnings|next|${safePage}`)
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji('▶️')
+        .setEmoji("▶️")
         .setDisabled(safePage === totalPages - 1),
     );
   }
 
   btns.push(
     new ButtonBuilder()
-      .setCustomId('warnings|clear')
-      .setLabel('Clear All Warnings')
+      .setCustomId("warnings|clear")
+      .setLabel("Clear All Warnings")
       .setStyle(ButtonStyle.Danger),
   );
 
@@ -163,7 +186,7 @@ function _startCollector(ctx, message, target, allWarns) {
     filter: (i) => {
       if (i.user.id !== ctx.author.id) {
         i.reply({
-          content: 'This is not your command.',
+          content: "This is not your command.",
           flags: MessageFlags.Ephemeral,
         }).catch(() => {});
         return false;
@@ -172,11 +195,11 @@ function _startCollector(ctx, message, target, allWarns) {
     },
   });
 
-  collector.on('collect', async (i) => {
+  collector.on("collect", async (i) => {
     try {
-      const [, action, pageStr] = i.customId.split('|');
+      const [, action, pageStr] = i.customId.split("|");
 
-      if (action === 'clear') {
+      if (action === "clear") {
         await i.deferUpdate();
         await db.warns.clearWarns(ctx.guild.id, target.id);
         currentWarns = [];
@@ -184,23 +207,27 @@ function _startCollector(ctx, message, target, allWarns) {
         const container = new ContainerBuilder();
         container.setAccentColor(config.colors.success ?? 0x2ecc71);
         container.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(`## Warnings Cleared\n\nAll warnings for **${target.tag}** have been removed.`),
+          new TextDisplayBuilder().setContent(
+            `## Warnings Cleared\n\nAll warnings for **${target.tag}** have been removed.`,
+          ),
         );
         await message.edit({ components: [container] });
-      
+
         return;
       }
 
       const currentPage = parseInt(pageStr, 10);
-      const nextPage    = action === 'next' ? currentPage + 1 : currentPage - 1;
+      const nextPage = action === "next" ? currentPage + 1 : currentPage - 1;
       await i.deferUpdate();
-      await message.edit({ components: [_buildView(target, currentWarns, nextPage)] });
+      await message.edit({
+        components: [_buildView(target, currentWarns, nextPage)],
+      });
     } catch (err) {
-      logger.error('Warnings', 'Interaction error', err);
+      logger.error("Warnings", "Interaction error", err);
     }
   });
 
-  collector.on('end', async () => {
+  collector.on("end", async () => {
     try {
       await disableComponents(message);
     } catch {}

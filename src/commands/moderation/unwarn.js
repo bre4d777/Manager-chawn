@@ -1,4 +1,4 @@
-import { Command } from '#command';
+import { Command } from "#command";
 import {
   MessageFlags,
   ContainerBuilder,
@@ -6,33 +6,48 @@ import {
   SeparatorBuilder,
   SeparatorSpacingSize,
   PermissionFlagsBits,
-} from 'discord.js';
-import { config } from '#config';
-import { db } from '#dbManager';
-
+} from "discord.js";
+import { config } from "#config";
+import { db } from "#dbManager";
 
 const { colors } = config;
 
 class UnwarnCommand extends Command {
   constructor() {
     super({
-      name: 'unwarn',
-      description: 'Remove a specific warning by ID',
-      usage: 'unwarn <user> <warnId> [reason]',
-      examples: ['unwarn @user 12', 'unwarn @user 12 false report'],
-      aliases: ['removewarn', 'delwarn'],
+      name: "unwarn",
+      description: "Remove a specific warning by ID",
+      usage: "unwarn <user> <warnId> [reason]",
+      examples: ["unwarn @user 12", "unwarn @user 12 false report"],
+      aliases: ["removewarn", "delwarn"],
       cooldown: 5,
-      permissions:     [PermissionFlagsBits.ModerateMembers],
+      permissions: [PermissionFlagsBits.ModerateMembers],
       userPermissions: [PermissionFlagsBits.ModerateMembers],
       enabledSlash: true,
       slashData: {
-        name: ['mod', 'unwarn'],
-        description: 'Remove a specific warning by ID',
+        name: ["mod", "unwarn"],
+        description: "Remove a specific warning by ID",
         defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
         options: [
-          { name: 'user',    description: 'Member whose warn to remove',      type: 6, required: true  },
-          { name: 'warn_id', description: 'The warn ID to remove',            type: 4, required: true, min_value: 1 },
-          { name: 'reason',  description: 'Reason for removing the warning',  type: 3, required: false },
+          {
+            name: "user",
+            description: "Member whose warn to remove",
+            type: 6,
+            required: true,
+          },
+          {
+            name: "warn_id",
+            description: "The warn ID to remove",
+            type: 4,
+            required: true,
+            min_value: 1,
+          },
+          {
+            name: "reason",
+            description: "Reason for removing the warning",
+            type: 3,
+            required: false,
+          },
         ],
       },
     });
@@ -41,14 +56,16 @@ class UnwarnCommand extends Command {
   async execute({ ctx }) {
     if (!ctx.inGuild()) {
       return ctx.reply({
-        components: [_errorView('This command can only be used in a server.')],
+        components: [_errorView("This command can only be used in a server.")],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       return ctx.reply({
-        components: [_errorView('You do not have permission to remove warnings.')],
+        components: [
+          _errorView("You do not have permission to remove warnings."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -56,27 +73,33 @@ class UnwarnCommand extends Command {
     let target, warnId, reason;
 
     if (ctx.isSlash) {
-      target = ctx.options.getUser('user', true);
-      warnId = ctx.options.getInteger('warn_id', true);
-      reason = ctx.options.getString('reason') ?? 'No reason provided';
+      target = ctx.options.getUser("user", true);
+      warnId = ctx.options.getInteger("warn_id", true);
+      reason = ctx.options.getString("reason") ?? "No reason provided";
     } else {
       const [rawUser, rawId, ...reasonParts] = ctx.args;
 
       if (!rawUser) {
         return ctx.reply({
-          components: [_errorView('Please provide a member.\n\n**Usage:** `unwarn <user> <warnId> [reason]`')],
+          components: [
+            _errorView(
+              "Please provide a member.\n\n**Usage:** `unwarn <user> <warnId> [reason]`",
+            ),
+          ],
           flags: MessageFlags.IsComponentsV2,
         });
       }
 
       if (!rawId) {
         return ctx.reply({
-          components: [_errorView('Please provide the warn ID to remove.')],
+          components: [_errorView("Please provide the warn ID to remove.")],
           flags: MessageFlags.IsComponentsV2,
         });
       }
 
-      target = await ctx.client.users.fetch(rawUser.replace(/\D/g, '')).catch(() => null);
+      target = await ctx.client.users
+        .fetch(rawUser.replace(/\D/g, ""))
+        .catch(() => null);
       if (!target) {
         return ctx.reply({
           components: [_errorView(`Could not find user \`${rawUser}\`.`)],
@@ -92,14 +115,18 @@ class UnwarnCommand extends Command {
         });
       }
 
-      reason = reasonParts.join(' ').trim() || 'No reason provided';
+      reason = reasonParts.join(" ").trim() || "No reason provided";
     }
 
     const removed = await db.warns.removeWarn(warnId, ctx.guild.id, target.id);
 
     if (!removed) {
       return ctx.reply({
-        components: [_errorView(`Warn #${warnId} not found for **${target.tag}** in this server.`)],
+        components: [
+          _errorView(
+            `Warn #${warnId} not found for **${target.tag}** in this server.`,
+          ),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -117,18 +144,22 @@ function _successView(target, executor, warnId, reason, remaining) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.success ?? 0x2ecc71);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent('## Warning Removed'),
+    new TextDisplayBuilder().setContent("## Warning Removed"),
   );
   container.addSeparatorComponents(
-    new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    new SeparatorBuilder()
+      .setSpacing(SeparatorSpacingSize.Small)
+      .setDivider(true),
   );
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent([
-      `**User:** ${target.tag} \`(${target.id})\``,
-      `**Removed Warn #${warnId}** — Remaining: **${remaining}** warn${remaining === 1 ? '' : 's'}`,
-      `**Moderator:** ${executor.tag} \`(${executor.id})\``,
-      `**Reason:** ${reason}`,
-    ].join('\n')),
+    new TextDisplayBuilder().setContent(
+      [
+        `**User:** ${target.tag} \`(${target.id})\``,
+        `**Removed Warn #${warnId}** — Remaining: **${remaining}** warn${remaining === 1 ? "" : "s"}`,
+        `**Moderator:** ${executor.tag} \`(${executor.id})\``,
+        `**Reason:** ${reason}`,
+      ].join("\n"),
+    ),
   );
   return container;
 }
