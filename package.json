@@ -1,0 +1,60 @@
+{
+  "name": "discord-bot-handler",
+  "version": "1.1.0",
+  "description": "A versatile Discord.js bot handler",
+  "type": "module",
+  "scripts": {
+    "start": "bun src/bot.js",
+    "generate": "bunx drizzle-kit generate",
+    "push": "bunx drizzle-kit push",
+    "studio": "bunx drizzle-kit studio",
+    "check": "bunx drizzle-kit check",
+    "introspect": "bunx drizzle-kit introspect",
+    "format": "prettier --write \"src/**/*.js\"",
+    "migrate": "bunx drizzle-kit push",
+    "rebuild": "bunx drizzle-kit generate && bunx drizzle-kit push"
+  },
+  "imports": {
+    "#commands/*": "./src/commands/*.js",
+    "#command": "./src/structures/classes/command.js",
+    "#context": "./src/structures/classes/context.js",
+    "#config": "./src/config/config.js",
+    "#emoji": "./src/config/emoji.js",
+    "#dbManager": "./src/database/manager.js",
+    "#structures/*": "./src/structures/*.js",
+    "#database/*": "./src/database/*.js",
+    "#config/*": "./src/config/*.js",
+    "#utils": "./src/utils/index.js",
+    "#events/*": "./src/events/*.js",
+    "#handlers/*": "./src/structures/handlers/*.js",
+    "#classes/*": "./src/structures/classes/*.js",
+    "#db/*": "./src/database/*.js",
+    "#dbRepo/*": "./src/database/repositories/*.js",
+    "#dbSchema/*": "./src/database/schema/*.js",
+    "#dbServices/*": "./src/database/services/*.js",
+    "#src/*": "./src/*.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "discord.js",
+    "sharding",
+    "modular"
+  ],
+  "author": "Bre4d777",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.4",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
+    "fs-extra": "^11.3.3",
+    "ioredis": "^5.9.2",
+    "pg": "^8.18.0",
+    "postgres": "^3.4.8",
+    "prettier": "^3.8.1"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
