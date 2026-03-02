@@ -1,7 +1,7 @@
 {
-  "name": "discord-bot-handler",
-  "version": "1.1.0",
-  "description": "A versatile Discord.js bot handler",
+  "name": "manage-chawn",
+  "version": "1.0.0",
+  "description": "A discord bot to manage ur sever?!",
   "type": "module",
   "scripts": {
     "start": "bun src/bot.js",
