@@ -1,6 +1,7 @@
 import { initDatabase, closeDatabase } from '#db/drizzle';
 import { GuildService } from '#dbServices/guilds';
 import { BlacklistService } from '#dbServices/blacklist';
+import { WarnService } from '#dbServices/warns';
 import { logger } from '#utils';
 
 /**
@@ -33,6 +34,7 @@ export class DatabaseManager {
 
 			this.guild = new GuildService();
 			this.blacklist = new BlacklistService();
+			this.warns = new WarnService();
 
 			this.initialized = true;
 			logger.success('DatabaseManager', 'Databases initialized successfully');
