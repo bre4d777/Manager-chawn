@@ -20,7 +20,7 @@ class PingCommand extends Command {
 
     await ctx.reply({
       content: "Pinging...",
-      flags: MessageFlags.Ephemeral,
+      ...(ctx.interaction ? { flags: MessageFlags.Ephemeral } : {}),
     });
 
     const redisStart = Date.now();
