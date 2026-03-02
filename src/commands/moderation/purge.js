@@ -495,7 +495,7 @@ function _successView(result, filters, executor, reason, channel) {
   const lines = [
     `**Channel:** ${channel}`,
     `**Deleted:** ${result.deleted} message${result.deleted === 1 ? "" : "s"}`,
-    result.skipped > 0 ? `**Skipped (age):** ${result.skipped}` : null,
+    result.skipped > 0 ? `**Skipped:** ${result.skipped}` : null,
     result.tooOld > 0 ? `**Beyond 14 days:** ${result.tooOld}` : null,
     result.filtered > 0 ? `**Filtered out:** ${result.filtered}` : null,
     result.batches > 1 ? `**Batches sent:** ${result.batches}` : null,
