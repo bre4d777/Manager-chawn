@@ -83,8 +83,15 @@ export class WarnRepository {
   async removeWarn(id, guildId, userId) {
     await this.db
       .delete(warns)
-      .where(and(eq(warns.id, id), eq(warns.guildId, guildId)));
+      .where(
+        and(
+          eq(warns.id, id),
+          eq(warns.guildId, guildId),
+          eq(warns.userId, userId),
+        ),
+      );
     await client.c.del(`${WARN_PREFIX}${guildId}:${userId}`);
+  }
   }
 
   /**

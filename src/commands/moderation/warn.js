@@ -111,22 +111,28 @@ class WarnCommand extends Command {
       .fetch(target.id)
       .catch(() => null);
 
-    if (targetMember) {
-      const execHighest = ctx.member.roles?.highest?.position ?? 0;
-      const targetHighest = targetMember.roles?.highest?.position ?? 0;
-
-      if (execHighest <= targetHighest && ctx.guild.ownerId !== ctx.user.id) {
-        return ctx.reply({
-          components: [
-            _errorView(
-              `You cannot warn **${target.tag}** — their role is higher than or equal to yours.`,
-            ),
-          ],
-          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
-        });
-      }
+    if (!targetMember) {
+      return ctx.reply({
+        components: [
+          _errorView(`**${target.tag}** is not a member of this server.`),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+      });
     }
 
+    const execHighest = ctx.member.roles?.highest?.position ?? 0;
+    const targetHighest = targetMember.roles?.highest?.position ?? 0;
+
+    if (execHighest <= targetHighest && ctx.guild.ownerId !== ctx.user.id) {
+      return ctx.reply({
+        components: [
+          _errorView(
+            `You cannot warn **${target.tag}** — their role is higher than or equal to yours.`,
+          ),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+      });
+    }
     const warn = await db.warns.addWarn(
       ctx.guild.id,
       target.id,

@@ -76,9 +76,10 @@ export class WarnService {
    */
   async removeWarn(id, guildId, userId) {
     const warn = await this.repo.getWarnById(id);
-    if (!warn || warn.guildId !== guildId) return false;
+    if (!warn || warn.guildId !== guildId || warn.userId !== userId) return false;
     await this.repo.removeWarn(id, guildId, userId);
     return true;
+  }
   }
 
   /**

@@ -56,14 +56,6 @@ class UpdateSlashCommand extends Command {
       }
 
       await msg.edit(
-        `${emoji.get("info")} **Clearing Commands**\nClearing existing global commands...`,
-      );
-
-      await rest.put(Routes.applicationCommands(ctx.client.user.id), {
-        body: [],
-      });
-
-      await msg.edit(
         `${emoji.get("info")} **Registering Commands**\nRegistering ${slashCommandsData.length} commands...`,
       );
 

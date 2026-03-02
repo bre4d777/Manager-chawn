@@ -153,7 +153,10 @@ class UntimeoutCommand extends Command {
       });
     }
 
-    const auditReason = `Timeout removed by ${ctx.user.tag} (${ctx.user.id}) | ${reason}`;
+    const prefix = `Timeout removed by ${ctx.user.tag} (${ctx.user.id}) | `;
+    const maxAuditLen = 512;
+    const safeReason = reason.slice(0, Math.max(0, maxAuditLen - prefix.length));
+    const auditReason = `${prefix}${safeReason}`;
 
     try {
       await targetMember.timeout(null, auditReason);

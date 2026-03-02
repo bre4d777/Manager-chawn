@@ -145,7 +145,7 @@ export class CommandContext {
     }
     this._deferred = true;
     if (options.fetchReply) {
-      this._replyMessage = await this.message.channel.sendTyping();
+      await this.message.channel.sendTyping();
     }
   }
 

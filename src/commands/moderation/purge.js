@@ -429,17 +429,29 @@ function _parsePrefixArgs(args) {
       filters.links = true;
       i++;
     } else if (tok === "--contains") {
-      filters.contains = args[++i] ?? null;
-      i++;
+      const readValue = (flag) => {
+        const next = args[i + 1];
+        if (!next || next.startsWith("--")) {
+          return { error: `Missing value for \`${flag}\`.` };
+        }
+        i += 2;
+        return { value: next };
+      };
+      const v = readValue("--contains");
+      if (v.error) return { error: v.error };
+      filters.contains = v.value;
     } else if (tok === "--startswith") {
-      filters.startswith = args[++i] ?? null;
-      i++;
+      const v = readValue("--startswith");
+      if (v.error) return { error: v.error };
+      filters.startswith = v.value;
     } else if (tok === "--regex") {
-      filters.regex = args[++i] ?? null;
-      i++;
+      const v = readValue("--regex");
+      if (v.error) return { error: v.error };
+      filters.regex = v.value;
     } else if (tok === "--user") {
-      rawUser = args[++i] ?? null;
-      i++;
+      const v = readValue("--user");
+      if (v.error) return { error: v.error };
+      rawUser = v.value;
     } else if (tok === "--reason") {
       reasonParts.push(...args.slice(i + 1));
       i = args.length;
