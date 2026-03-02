@@ -51,7 +51,7 @@ class SupportCommand extends Command {
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             `* ${emoji.settings} Help with commands, setup, and issues\n` +
-              `* ${emoji.fix} Report bugs and unexpected behavior\n` +
+              `* ${emoji.cross} Report bugs and unexpected behavior\n` +
               `* ${emoji.activity} Get update announcements\n` +
               `* ${emoji.code} Suggest and discuss features`,
           ),
