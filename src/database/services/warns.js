@@ -3,7 +3,7 @@ import { WarnRepository } from "#dbRepo/warns";
 const VALID_ACTIONS = ["timeout", "kick", "ban"];
 const DURATION_UNITS = { s: 1, m: 60, h: 3_600, d: 86_400, w: 604_800 };
 const MAX_TIMEOUT_MS = 28 * 24 * 60 * 60 * 1_000;
-const MAX_AUDIT_REASON_LENGTH = 512
+const MAX_AUDIT_REASON_LENGTH = 512;
 
 /**
  * Business-logic layer for the warning system.

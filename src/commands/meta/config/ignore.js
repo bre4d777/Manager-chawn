@@ -262,9 +262,7 @@ class IgnoreCommand extends Command {
           ? `${emoji.check} Current channel added`
           : `${emoji.cross} Could not add channel (list full)`;
         await msg.edit({
-          components: [
-            this._renderIgnoreEditor(ctx, updated, currentFeedback),
-          ],
+          components: [this._renderIgnoreEditor(ctx, updated, currentFeedback)],
         });
 
         setTimeout(async () => {

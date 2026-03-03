@@ -10,33 +10,39 @@ import {
 import { config } from "#config";
 
 const { colors } = config;
+
 const MAX_AUDIT_REASON_LENGTH = 512;
-class KickCommand extends Command {
+
+class RoleDeleteCommand extends Command {
   constructor() {
     super({
-      name: "kick",
-      description: "Kick a member from the server",
-      usage: "kick <user> [reason]",
-      examples: ["kick @user", "kick @user breaking rules"],
-      aliases: ["boot", "remove"],
-      cooldown: 5,
-      permissions: [PermissionFlagsBits.KickMembers],
-      userPermissions: [PermissionFlagsBits.KickMembers],
+      name: "roledelete",
+      description: "Permanently delete a role from the server",
+      usage: "roledelete <@role|id> [reason]",
+      examples: [
+        "roledelete @OldRole",
+        "roledelete @Muted no longer needed",
+        "roledelete 123456789012345678 cleanup",
+      ],
+      aliases: ["delrole", "removerole", "drole"],
+      cooldown: 10,
+      permissions: [PermissionFlagsBits.ManageRoles],
+      userPermissions: [PermissionFlagsBits.ManageRoles],
       enabledSlash: true,
       slashData: {
-        name: ["mod", "kick"],
-        description: "Kick a member from the server",
-        defaultMemberPermissions: PermissionFlagsBits.KickMembers,
+        name: ["role", "delete"],
+        description: "Permanently delete a role from the server",
+        defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
         options: [
           {
-            name: "user",
-            description: "The member to kick",
-            type: 6,
+            name: "role",
+            description: "Role to delete",
+            type: 8,
             required: true,
           },
           {
             name: "reason",
-            description: "Reason for the kick",
+            description: "Reason for deleting the role",
             type: 3,
             required: false,
           },
@@ -63,45 +69,45 @@ class KickCommand extends Command {
       });
     }
 
-    if (!botMember.permissions.has(PermissionFlagsBits.KickMembers)) {
+    if (!botMember.permissions.has(PermissionFlagsBits.ManageRoles)) {
       return ctx.reply({
-        components: [_errorView("I do not have permission to kick members.")],
+        components: [_errorView("I do not have permission to manage roles.")],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
-    if (!ctx.member.permissions.has(PermissionFlagsBits.KickMembers)) {
+    if (!ctx.member.permissions.has(PermissionFlagsBits.ManageRoles)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to kick members.")],
+        components: [_errorView("You do not have permission to manage roles.")],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
-    let target, reason;
+    let role, reason;
 
     if (ctx.isSlash) {
-      target = ctx.options.getUser("user", true);
+      role = ctx.options.getRole("role", true);
       reason = ctx.options.getString("reason") ?? "No reason provided";
     } else {
-      const [rawUser, ...reasonParts] = ctx.args;
+      const [rawRole, ...reasonParts] = ctx.args;
 
-      if (!rawUser) {
+      if (!rawRole) {
         return ctx.reply({
           components: [
             _errorView(
-              "Please provide a member.\n\n**Usage:** `kick <user> [reason]`",
+              "Please provide a role.\n\n**Usage:** `roledelete <@role|id> [reason]`",
             ),
           ],
           flags: MessageFlags.IsComponentsV2,
         });
       }
 
-      target = await ctx.client.users
-        .fetch(rawUser.replace(/\D/g, ""))
-        .catch(() => null);
-      if (!target) {
+      const roleId = rawRole.replace(/[<@&>]/g, "");
+      role = ctx.guild.roles.cache.get(roleId);
+
+      if (!role) {
         return ctx.reply({
-          components: [_errorView(`Could not find user \`${rawUser}\`.`)],
+          components: [_errorView(`Could not find role \`${rawRole}\`.`)],
           flags: MessageFlags.IsComponentsV2,
         });
       }
@@ -109,36 +115,29 @@ class KickCommand extends Command {
       reason = reasonParts.join(" ").trim() || "No reason provided";
     }
 
-    if (target.id === ctx.user.id) {
+    if (role.id === ctx.guild.roles.everyone.id) {
       return ctx.reply({
-        components: [_errorView("You cannot kick yourself.")],
+        components: [_errorView("The @everyone role cannot be deleted.")],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
-    if (target.id === ctx.client.user.id) {
-      return ctx.reply({
-        components: [_errorView("I cannot kick myself.")],
-        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
-      });
-    }
-
-    const targetMember = await ctx.guild.members
-      .fetch(target.id)
-      .catch(() => null);
-
-    if (!targetMember) {
-      return ctx.reply({
-        components: [_errorView(`**${target.tag}** is not in this server.`)],
-        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
-      });
-    }
-
-    if (!targetMember.kickable) {
+    if (role.managed) {
       return ctx.reply({
         components: [
           _errorView(
-            `I cannot kick **${target.tag}** — their role is too high.`,
+            `**${role.name}** is a managed role (bot/integration) and cannot be deleted manually.`,
+          ),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+      });
+    }
+
+    if (role.position >= botMember.roles.highest.position) {
+      return ctx.reply({
+        components: [
+          _errorView(
+            `I cannot delete **${role.name}** — it is higher than or equal to my highest role.`,
           ),
         ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
@@ -146,44 +145,61 @@ class KickCommand extends Command {
     }
 
     const execHighest = ctx.member.roles?.highest?.position ?? 0;
-    const targetHighest = targetMember.roles?.highest?.position ?? 0;
-
-    if (execHighest <= targetHighest && ctx.guild.ownerId !== ctx.user.id) {
+    if (role.position >= execHighest && ctx.guild.ownerId !== ctx.user.id) {
       return ctx.reply({
         components: [
           _errorView(
-            `You cannot kick **${target.tag}** — their role is higher than or equal to yours.`,
+            `You cannot delete **${role.name}** — it is higher than or equal to your highest role.`,
           ),
         ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
-    const auditReason = _buildAuditReason(ctx.user, "Kick", reason);
+    const roleName = role.name;
+    const roleId = role.id;
+    const roleColor = role.color;
+    const memberCount = role.members.size;
+
+    const auditReason = _buildAuditReason(ctx.user, "RoleDelete", reason);
 
     try {
-      await targetMember.kick(auditReason);
+      await role.delete(auditReason);
     } catch (err) {
       return ctx.reply({
-        components: [
-          _errorView(`Failed to kick **${target.tag}**: ${err.message}`),
-        ],
+        components: [_errorView(`Failed to delete role: Check role hierarchy and bot permissions`)],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     return ctx.reply({
-      components: [_successView(target, ctx.user, reason)],
+      components: [
+        _successView(
+          roleName,
+          roleId,
+          roleColor,
+          memberCount,
+          ctx.user,
+          reason,
+        ),
+      ],
       flags: MessageFlags.IsComponentsV2,
     });
   }
 }
 
-function _successView(target, executor, reason) {
+function _successView(
+  roleName,
+  roleId,
+  roleColor,
+  memberCount,
+  executor,
+  reason,
+) {
   const container = new ContainerBuilder();
-  container.setAccentColor(colors.warning ?? 0xf39c12);
+  container.setAccentColor(roleColor || (colors.success ?? 0x2ecc71));
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent("## Member Kicked"),
+    new TextDisplayBuilder().setContent("## Role Deleted"),
   );
   container.addSeparatorComponents(
     new SeparatorBuilder()
@@ -193,7 +209,8 @@ function _successView(target, executor, reason) {
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent(
       [
-        `**User:** ${target.tag} \`(${target.id})\``,
+        `**Role:** ${roleName} \`(${roleId})\``,
+        `**Had Members:** ${memberCount}`,
         `**Moderator:** ${executor.tag} \`(${executor.id})\``,
         `**Reason:** ${reason}`,
       ].join("\n"),
@@ -206,13 +223,16 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Kick Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Role Delete Failed\n\n${description}`,
+    ),
   );
   return container;
 }
+
 function _buildAuditReason(executor, action, reason) {
   const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
   return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
-export default new KickCommand();
+export default new RoleDeleteCommand();

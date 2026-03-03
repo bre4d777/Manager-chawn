@@ -56,12 +56,13 @@ class UnbanCommand extends Command {
       });
     }
 
-    const botMember = await ctx.guild.members.fetchMe();
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
-     if (!botMember) {
-       return ctx.reply({
-         components: [_errorView("Failed to resolve bot member in this server.")],
-         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+    if (!botMember) {
+      return ctx.reply({
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
