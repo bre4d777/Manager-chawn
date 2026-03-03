@@ -97,7 +97,14 @@ class LockCommand extends Command {
         reason = ctx.args.join(" ").trim() || "No reason provided";
       }
     }
-
+if (!target?.permissionOverwrites) {
+     return ctx.reply({
+        components: [
+          _errorView("This channel type does not support permission overwrites."),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+      });
+    }
     if (
       !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
     ) {
