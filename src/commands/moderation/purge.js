@@ -235,13 +235,12 @@ class PurgeCommand extends Command {
 
     await ctx.deferReply({ ephemeral: true });
 
-
     const result = await _runPurge({
       channel: ctx.channel,
       amount,
       filters,
       invokeId,
-     });
+    });
 
     if (result.error) {
       return ctx.editReply({
@@ -259,7 +258,7 @@ class PurgeCommand extends Command {
   }
 }
 
-async function _runPurge({ channel, amount, filters, invokeId}) {
+async function _runPurge({ channel, amount, filters, invokeId }) {
   const cutoff = Date.now() - MAX_AGE_MS;
   const eligible = [];
   let tooOld = 0;
@@ -465,7 +464,6 @@ function _parsePrefixArgs(args) {
     reason: reasonParts.join(" ").trim() || "No reason provided",
   };
 }
-
 
 function _successView(result, filters, executor, reason, channel) {
   const container = new ContainerBuilder();

@@ -59,7 +59,9 @@ class NicknameCommand extends Command {
 
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }

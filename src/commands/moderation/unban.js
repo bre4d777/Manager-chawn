@@ -12,7 +12,6 @@ import { config } from "#config";
 const { colors } = config;
 const MAX_AUDIT_REASON_LENGTH = 512;
 
-
 class UnbanCommand extends Command {
   constructor() {
     super({

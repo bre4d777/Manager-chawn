@@ -137,10 +137,10 @@ export const canBotUseVoiceChannel = (voiceChannel) => {
       canConnect: botPerms.has(PermissionFlagsBits.Connect),
       canSpeak: botPerms.has(PermissionFlagsBits.Speak),
       missing: [
-               !botPerms.has(PermissionFlagsBits.ViewChannel) && "View Channel",
-               !botPerms.has(PermissionFlagsBits.Connect) && "Connect",
-               !botPerms.has(PermissionFlagsBits.Speak) && "Speak",
-               ].filter(Boolean),
+        !botPerms.has(PermissionFlagsBits.ViewChannel) && "View Channel",
+        !botPerms.has(PermissionFlagsBits.Connect) && "Connect",
+        !botPerms.has(PermissionFlagsBits.Speak) && "Speak",
+      ].filter(Boolean),
     };
   } catch (error) {
     return {

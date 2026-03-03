@@ -54,7 +54,7 @@ class UntimeoutCommand extends Command {
       });
     }
 
-    const botMember = await ctx.guild.members.fetchMe().catch(() => {})
+    const botMember = await ctx.guild.members.fetchMe().catch(() => {});
 
     if (!botMember.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       return ctx.reply({

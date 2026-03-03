@@ -227,7 +227,7 @@ export class Rei {
       .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
       .replace(/\*/g, ".*");
     const regex = new RegExp(`^${escaped}$`);
-    const matches =[];
+    const matches = [];
     for (const k of m.keys()) {
       if (regex.test(k)) matches.push(k);
     }
@@ -380,7 +380,7 @@ export class Rei {
    */
   smembers(k) {
     const s = this.$.get(k);
-    return s instanceof Set ? Array.from(s) :[];
+    return s instanceof Set ? Array.from(s) : [];
   }
 
   /**
@@ -413,7 +413,7 @@ export class Rei {
   lpush(k, ...values) {
     let arr = this.$.get(k);
     if (!Array.isArray(arr)) {
-      arr =[];
+      arr = [];
       this.set(k, arr);
     }
     arr.unshift(...values);
@@ -427,7 +427,7 @@ export class Rei {
   rpush(k, ...values) {
     let arr = this.$.get(k);
     if (!Array.isArray(arr)) {
-      arr =[];
+      arr = [];
       this.set(k, arr);
     }
     arr.push(...values);
@@ -458,7 +458,7 @@ export class Rei {
    */
   lrange(k, start, stop) {
     const arr = this.$.get(k);
-    if (!Array.isArray(arr)) return[];
+    if (!Array.isArray(arr)) return [];
     const end = stop === -1 ? arr.length : stop + 1;
     return arr.slice(start, end);
   }

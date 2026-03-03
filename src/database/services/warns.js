@@ -115,12 +115,14 @@ export class WarnService {
       }
       if (
         t.action === "timeout" &&
-        (!Number.isInteger(t.duration) || t.duration < 1 || t.duration > MAX_TIMEOUT_MS)
+        (!Number.isInteger(t.duration) ||
+          t.duration < 1 ||
+          t.duration > MAX_TIMEOUT_MS)
       ) {
         throw new Error("Invalid timeout duration");
       }
     }
-    const sorted =[...thresholds].sort((a, b) => a.count - b.count);
+    const sorted = [...thresholds].sort((a, b) => a.count - b.count);
     await this.repo.setConfig(guildId, sorted);
     return sorted;
   }
