@@ -22,7 +22,8 @@ class RoleHumansCommand extends Command {
     super({
       name: "rolehumans",
       description: "Add or remove a role from every human (non-bot) member",
-      usage: "rolehumans <add|remove> <@role> [--exclude @role] [--include @role] [--reason text]",
+      usage:
+        "rolehumans <add|remove> <@role> [--exclude @role] [--include @role] [--reason text]",
       examples: [
         "rolehumans add @Member",
         "rolehumans remove @Muted",
@@ -35,7 +36,7 @@ class RoleHumansCommand extends Command {
       userPermissions: [PermissionFlagsBits.ManageRoles],
       enabledSlash: true,
       slashData: {
-        name: ["role" ,'humans'],
+        name: ["role", "humans"],
         description: "Add or remove a role from every human (non-bot) member",
         defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
         options: [
@@ -89,7 +90,9 @@ class RoleHumansCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -137,11 +140,11 @@ class RoleHumansCommand extends Command {
       }
 
       excludeRole = parsed.excludeRoleId
-        ? ctx.guild.roles.cache.get(parsed.excludeRoleId) ?? null
+        ? (ctx.guild.roles.cache.get(parsed.excludeRoleId) ?? null)
         : null;
 
       includeRole = parsed.includeRoleId
-        ? ctx.guild.roles.cache.get(parsed.includeRoleId) ?? null
+        ? (ctx.guild.roles.cache.get(parsed.includeRoleId) ?? null)
         : null;
     }
 
@@ -173,13 +176,23 @@ class RoleHumansCommand extends Command {
     }
 
     return ctx.editReply({
-      components: [_finalView(role, action, result, ctx.user, reason, "All humans")],
+      components: [
+        _finalView(role, action, result, ctx.user, reason, "All humans"),
+      ],
       flags: MessageFlags.IsComponentsV2,
     });
   }
 }
 
-async function _runMassRole(ctx, role, action, baseFilter, excludeRoleId, includeRoleId, reason) {
+async function _runMassRole(
+  ctx,
+  role,
+  action,
+  baseFilter,
+  excludeRoleId,
+  includeRoleId,
+  reason,
+) {
   const startTime = Date.now();
 
   let allMembers;
@@ -208,18 +221,27 @@ async function _runMassRole(ctx, role, action, baseFilter, excludeRoleId, includ
     return { toProcess: 0, success: 0, failed: 0, skipped, noOp: true };
   }
 
-  const etaMs = Math.ceil(toProcess.length / ROLE_BATCH_SIZE) * ROLE_BATCH_DELAY;
+  const etaMs =
+    Math.ceil(toProcess.length / ROLE_BATCH_SIZE) * ROLE_BATCH_DELAY;
   const etaUnix = Math.floor((Date.now() + etaMs) / 1000);
 
-  await ctx.editReply({
-    components: [_progressView(role, action, 0, toProcess.length, etaUnix, 0, 0)],
-    flags: MessageFlags.IsComponentsV2,
-  }).catch(() => {});
+  await ctx
+    .editReply({
+      components: [
+        _progressView(role, action, 0, toProcess.length, etaUnix, 0, 0),
+      ],
+      flags: MessageFlags.IsComponentsV2,
+    })
+    .catch(() => {});
 
   let success = 0;
   let failed = 0;
   let lastUpdate = Date.now();
-  const auditReason = _buildAuditReason(ctx.user, action === "add" ? "RoleHumans-Add" : "RoleHumans-Remove", reason);
+  const auditReason = _buildAuditReason(
+    ctx.user,
+    action === "add" ? "RoleHumans-Add" : "RoleHumans-Remove",
+    reason,
+  );
 
   for (let i = 0; i < toProcess.length; i += ROLE_BATCH_SIZE) {
     if (i > 0) await sleep(ROLE_BATCH_DELAY);
@@ -251,10 +273,22 @@ async function _runMassRole(ctx, role, action, baseFilter, excludeRoleId, includ
       const dynamicEtaMs = rate > 0 ? remaining / rate : 0;
       const dynamicEtaUnix = Math.floor((now + dynamicEtaMs) / 1000);
 
-      await ctx.editReply({
-        components: [_progressView(role, action, processed, toProcess.length, dynamicEtaUnix, success, failed)],
-        flags: MessageFlags.IsComponentsV2,
-      }).catch(() => {});
+      await ctx
+        .editReply({
+          components: [
+            _progressView(
+              role,
+              action,
+              processed,
+              toProcess.length,
+              dynamicEtaUnix,
+              success,
+              failed,
+            ),
+          ],
+          flags: MessageFlags.IsComponentsV2,
+        })
+        .catch(() => {});
 
       lastUpdate = now;
     }
@@ -263,7 +297,15 @@ async function _runMassRole(ctx, role, action, baseFilter, excludeRoleId, includ
   return { toProcess: toProcess.length, success, failed, skipped };
 }
 
-function _progressView(role, action, processed, total, etaUnix, success, failed) {
+function _progressView(
+  role,
+  action,
+  processed,
+  total,
+  etaUnix,
+  success,
+  failed,
+) {
   const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
   const barLen = 12;
   const filled = Math.round((pct / 100) * barLen);
@@ -296,7 +338,9 @@ function _progressView(role, action, processed, total, etaUnix, success, failed)
 function _finalView(role, action, result, executor, reason, targetLabel) {
   const container = new ContainerBuilder();
   container.setAccentColor(
-    result.failed > 0 ? (colors.warning ?? 0xf39c12) : (colors.success ?? 0x2ecc71),
+    result.failed > 0
+      ? (colors.warning ?? 0xf39c12)
+      : (colors.success ?? 0x2ecc71),
   );
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent("## Mass Role — Complete"),
@@ -314,8 +358,12 @@ function _finalView(role, action, result, executor, reason, targetLabel) {
         result.noOp
           ? `**Result:** No eligible members to ${action}.`
           : `**Processed:** ${result.toProcess} members`,
-        !result.noOp && result.success > 0 ? `**Success:** ${result.success}` : null,
-        !result.noOp && result.failed > 0 ? `**Failed:** ${result.failed}` : null,
+        !result.noOp && result.success > 0
+          ? `**Success:** ${result.success}`
+          : null,
+        !result.noOp && result.failed > 0
+          ? `**Failed:** ${result.failed}`
+          : null,
         result.skipped > 0
           ? `**Already ${action === "add" ? "had" : "lacked"} role:** ${result.skipped}`
           : null,
@@ -333,14 +381,18 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Mass Role Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Mass Role Failed\n\n${description}`,
+    ),
   );
   return container;
 }
 
 function _validateRole(role, botMember, ctx) {
-  if (role.managed) return "Managed roles (bot/integration roles) cannot be mass-assigned.";
-  if (role.id === ctx.guild.roles.everyone.id) return "The @everyone role cannot be assigned.";
+  if (role.managed)
+    return "Managed roles (bot/integration roles) cannot be mass-assigned.";
+  if (role.id === ctx.guild.roles.everyone.id)
+    return "The @everyone role cannot be assigned.";
   if (role.position >= botMember.roles.highest.position) {
     return `I cannot assign ${role} — it is higher than or equal to my highest role.`;
   }
@@ -374,12 +426,14 @@ function _parseMassRoleArgs(args) {
     const tok = args[i];
     if (tok === "--exclude") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--exclude`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--exclude`." };
       excludeRoleId = next.replace(/[<@&>]/g, "");
       i += 2;
     } else if (tok === "--include") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--include`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--include`." };
       includeRoleId = next.replace(/[<@&>]/g, "");
       i += 2;
     } else if (tok === "--reason") {

@@ -18,13 +18,10 @@ class NukeCommand extends Command {
   constructor() {
     super({
       name: "nuke",
-      description: "Clone a channel and delete the original, wiping all messages",
+      description:
+        "Clone a channel and delete the original, wiping all messages",
       usage: "nuke [#channel] [reason]",
-      examples: [
-        "nuke",
-        "nuke #general raid cleanup",
-        "nuke #spam",
-      ],
+      examples: ["nuke", "nuke #general raid cleanup", "nuke #spam"],
       aliases: ["clearchannel", "channelnuke"],
       cooldown: 30,
       permissions: [PermissionFlagsBits.ManageChannels],
@@ -32,7 +29,8 @@ class NukeCommand extends Command {
       enabledSlash: true,
       slashData: {
         name: ["mod", "nuke"],
-        description: "Clone a channel and delete the original, wiping all messages",
+        description:
+          "Clone a channel and delete the original, wiping all messages",
         defaultMemberPermissions: PermissionFlagsBits.ManageChannels,
         options: [
           {
@@ -64,14 +62,18 @@ class NukeCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -96,14 +98,20 @@ class NukeCommand extends Command {
     const allowed = [ChannelType.GuildText, ChannelType.GuildAnnouncement];
     if (!allowed.includes(target.type)) {
       return ctx.reply({
-        components: [_errorView("Only text and announcement channels can be nuked.")],
+        components: [
+          _errorView("Only text and announcement channels can be nuked."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
-    if (!botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)) {
+    if (
+      !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
       return ctx.reply({
-        components: [_errorView(`I do not have permission to manage ${target}.`)],
+        components: [
+          _errorView(`I do not have permission to manage ${target}.`),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -128,20 +136,26 @@ class NukeCommand extends Command {
     } catch (err) {
       await newChannel.delete().catch(() => {});
       return ctx.editReply({
-        components: [_errorView(`Failed to delete original channel: ${err.message}`)],
+        components: [
+          _errorView(`Failed to delete original channel: ${err.message}`),
+        ],
         flags: MessageFlags.IsComponentsV2,
       });
     }
 
-    await ctx.editReply({
-      components: [_successView(newChannel, ctx.user, reason)],
-      flags: MessageFlags.IsComponentsV2,
-    }).catch(() => {});
+    await ctx
+      .editReply({
+        components: [_successView(newChannel, ctx.user, reason)],
+        flags: MessageFlags.IsComponentsV2,
+      })
+      .catch(() => {});
 
-    await newChannel.send({
-      components: [_successView(newChannel, ctx.user, reason)],
-      flags: MessageFlags.IsComponentsV2,
-    }).catch(() => {});
+    await newChannel
+      .send({
+        components: [_successView(newChannel, ctx.user, reason)],
+        flags: MessageFlags.IsComponentsV2,
+      })
+      .catch(() => {});
   }
 }
 

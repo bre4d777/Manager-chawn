@@ -17,8 +17,10 @@ class RoleCreateCommand extends Command {
   constructor() {
     super({
       name: "rolecreate",
-      description: "Create a new role with optional color, hoist, and mentionable settings",
-      usage: "rolecreate <name> [--color #hex] [--hoist] [--mentionable] [--reason text]",
+      description:
+        "Create a new role with optional color, hoist, and mentionable settings",
+      usage:
+        "rolecreate <name> [--color #hex] [--hoist] [--mentionable] [--reason text]",
       examples: [
         "rolecreate Members",
         "rolecreate VIP --color #f1c40f --hoist",
@@ -31,7 +33,7 @@ class RoleCreateCommand extends Command {
       userPermissions: [PermissionFlagsBits.ManageRoles],
       enabledSlash: true,
       slashData: {
-        name: ["role","create"],
+        name: ["role", "create"],
         description: "Create a new role",
         defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
         options: [
@@ -81,7 +83,9 @@ class RoleCreateCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -125,7 +129,9 @@ class RoleCreateCommand extends Command {
 
     if (!name || name.length > 100) {
       return ctx.reply({
-        components: [_errorView("Role name must be between 1 and 100 characters.")],
+        components: [
+          _errorView("Role name must be between 1 and 100 characters."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -192,7 +198,8 @@ function _parsePrefixArgs(args) {
     const tok = args[i];
     if (tok === "--color") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--color`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--color`." };
       color = next;
       i += 2;
     } else if (tok === "--hoist") {
@@ -260,7 +267,9 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Role Create Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Role Create Failed\n\n${description}`,
+    ),
   );
   return container;
 }

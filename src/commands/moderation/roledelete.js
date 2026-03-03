@@ -30,7 +30,7 @@ class RoleDeleteCommand extends Command {
       userPermissions: [PermissionFlagsBits.ManageRoles],
       enabledSlash: true,
       slashData: {
-        name: ["role","delete"],
+        name: ["role", "delete"],
         description: "Permanently delete a role from the server",
         defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
         options: [
@@ -62,7 +62,9 @@ class RoleDeleteCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -171,13 +173,29 @@ class RoleDeleteCommand extends Command {
     }
 
     return ctx.reply({
-      components: [_successView(roleName, roleId, roleColor, memberCount, ctx.user, reason)],
+      components: [
+        _successView(
+          roleName,
+          roleId,
+          roleColor,
+          memberCount,
+          ctx.user,
+          reason,
+        ),
+      ],
       flags: MessageFlags.IsComponentsV2,
     });
   }
 }
 
-function _successView(roleName, roleId, roleColor, memberCount, executor, reason) {
+function _successView(
+  roleName,
+  roleId,
+  roleColor,
+  memberCount,
+  executor,
+  reason,
+) {
   const container = new ContainerBuilder();
   container.setAccentColor(roleColor || (colors.success ?? 0x2ecc71));
   container.addTextDisplayComponents(
@@ -205,7 +223,9 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Role Delete Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Role Delete Failed\n\n${description}`,
+    ),
   );
   return container;
 }

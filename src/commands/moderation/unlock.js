@@ -63,14 +63,18 @@ class UnlockCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -93,9 +97,13 @@ class UnlockCommand extends Command {
       }
     }
 
-    if (!botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)) {
+    if (
+      !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
       return ctx.reply({
-        components: [_errorView(`I do not have permission to manage ${target}.`)],
+        components: [
+          _errorView(`I do not have permission to manage ${target}.`),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }

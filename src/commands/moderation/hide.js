@@ -19,11 +19,7 @@ class HideCommand extends Command {
       name: "hide",
       description: "Hide a channel from @everyone",
       usage: "hide [#channel] [reason]",
-      examples: [
-        "hide",
-        "hide #secret maintenance",
-        "hide #staff-chat",
-      ],
+      examples: ["hide", "hide #secret maintenance", "hide #staff-chat"],
       aliases: ["hidechannel"],
       cooldown: 5,
       permissions: [PermissionFlagsBits.ManageChannels],
@@ -63,14 +59,18 @@ class HideCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -93,9 +93,13 @@ class HideCommand extends Command {
       }
     }
 
-    if (!botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)) {
+    if (
+      !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
       return ctx.reply({
-        components: [_errorView(`I do not have permission to manage ${target}.`)],
+        components: [
+          _errorView(`I do not have permission to manage ${target}.`),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }

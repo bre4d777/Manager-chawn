@@ -30,7 +30,7 @@ class DeleteChannelCommand extends Command {
       userPermissions: [PermissionFlagsBits.ManageChannels],
       enabledSlash: true,
       slashData: {
-        name: ["channel","delete"],
+        name: ["channel", "delete"],
         description: "Permanently delete a channel or category",
         defaultMemberPermissions: PermissionFlagsBits.ManageChannels,
         options: [
@@ -62,14 +62,18 @@ class DeleteChannelCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -91,15 +95,18 @@ class DeleteChannelCommand extends Command {
       }
     }
 
-    if (!botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)) {
+    if (
+      !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
       return ctx.reply({
-        components: [_errorView(`I do not have permission to manage ${target}.`)],
+        components: [
+          _errorView(`I do not have permission to manage ${target}.`),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     const auditReason = _buildAuditReason(ctx.user, "DeleteChannel", reason);
-
 
     const channelName = target.name;
     const channelId = target.id;
@@ -114,12 +121,12 @@ class DeleteChannelCommand extends Command {
       });
     }
 
-  
-      await ctx.reply({
+    await ctx
+      .reply({
         components: [_successView(channelName, channelId, ctx.user, reason)],
         flags: MessageFlags.IsComponentsV2,
-      }).catch(() => {});
-    
+      })
+      .catch(() => {});
   }
 }
 
@@ -150,7 +157,9 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Delete Channel Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Delete Channel Failed\n\n${description}`,
+    ),
   );
   return container;
 }

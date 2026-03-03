@@ -30,7 +30,7 @@ class RoleRemoveCommand extends Command {
       userPermissions: [PermissionFlagsBits.ManageRoles],
       enabledSlash: true,
       slashData: {
-        name: ["role","remove"],
+        name: ["role", "remove"],
         description: "Remove a role from a member",
         defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
         options: [
@@ -68,7 +68,9 @@ class RoleRemoveCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -133,7 +135,11 @@ class RoleRemoveCommand extends Command {
 
     if (role.managed) {
       return ctx.reply({
-        components: [_errorView("Managed roles (bot/integration roles) cannot be manually removed.")],
+        components: [
+          _errorView(
+            "Managed roles (bot/integration roles) cannot be manually removed.",
+          ),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -168,7 +174,9 @@ class RoleRemoveCommand extends Command {
       });
     }
 
-    const targetMember = await ctx.guild.members.fetch(target.id).catch(() => null);
+    const targetMember = await ctx.guild.members
+      .fetch(target.id)
+      .catch(() => null);
     if (!targetMember) {
       return ctx.reply({
         components: [_errorView(`**${target.tag}** is not in this server.`)],
@@ -190,7 +198,9 @@ class RoleRemoveCommand extends Command {
     } catch (err) {
       return ctx.reply({
         components: [
-          _errorView(`Failed to remove ${role} from **${target.tag}**: ${err.message}`),
+          _errorView(
+            `Failed to remove ${role} from **${target.tag}**: ${err.message}`,
+          ),
         ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
@@ -231,7 +241,9 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Role Remove Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Role Remove Failed\n\n${description}`,
+    ),
   );
   return container;
 }

@@ -36,7 +36,8 @@ class CloneCommand extends Command {
   constructor() {
     super({
       name: "clone",
-      description: "Clone a channel or an entire category with all its children",
+      description:
+        "Clone a channel or an entire category with all its children",
       usage: "clone [#channel|#category] [--name new-name] [--reason text]",
       examples: [
         "clone",
@@ -52,7 +53,8 @@ class CloneCommand extends Command {
       enabledSlash: true,
       slashData: {
         name: ["channel", "clone"],
-        description: "Clone a channel or an entire category with all its children",
+        description:
+          "Clone a channel or an entire category with all its children",
         defaultMemberPermissions: PermissionFlagsBits.ManageChannels,
         options: [
           {
@@ -63,7 +65,8 @@ class CloneCommand extends Command {
           },
           {
             name: "name",
-            description: "Override the name for the clone (default: copy-of-<name>)",
+            description:
+              "Override the name for the clone (default: copy-of-<name>)",
             type: 3,
             required: false,
           },
@@ -89,21 +92,27 @@ class CloneCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!botMember.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("I do not have permission to manage channels.")],
+        components: [
+          _errorView("I do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -131,7 +140,9 @@ class CloneCommand extends Command {
         target = ctx.guild.channels.cache.get(id);
         if (!target) {
           return ctx.reply({
-            components: [_errorView(`Could not find channel \`${parsed.channelRef}\`.`)],
+            components: [
+              _errorView(`Could not find channel \`${parsed.channelRef}\`.`),
+            ],
             flags: MessageFlags.IsComponentsV2,
           });
         }
@@ -147,20 +158,25 @@ class CloneCommand extends Command {
       });
     }
 
-    if (!botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)) {
+    if (
+      !botMember.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
       return ctx.reply({
-        components: [_errorView(`I do not have permission to manage ${target}.`)],
+        components: [
+          _errorView(`I do not have permission to manage ${target}.`),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (overrideName && overrideName.length > 100) {
       return ctx.reply({
-        components: [_errorView("Channel name must be 100 characters or fewer.")],
+        components: [
+          _errorView("Channel name must be 100 characters or fewer."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
-
 
     const auditReason = _buildAuditReason(ctx.user, "Clone", reason);
 
@@ -193,7 +209,9 @@ class CloneCommand extends Command {
             parent: clonedCategory.id,
             reason: auditReason,
           });
-          await clonedChild.setPosition(child.rawPosition, { reason: auditReason }).catch(() => {});
+          await clonedChild
+            .setPosition(child.rawPosition, { reason: auditReason })
+            .catch(() => {});
           childSuccess++;
         } catch {
           childFailed++;
@@ -231,7 +249,9 @@ class CloneCommand extends Command {
         });
       }
 
-      await cloned.setPosition(target.rawPosition + 1, { reason: auditReason }).catch(() => {});
+      await cloned
+        .setPosition(target.rawPosition + 1, { reason: auditReason })
+        .catch(() => {});
     } catch (err) {
       return ctx.editReply({
         components: [_errorView(`Failed to clone channel: ${err.message}`)],
@@ -264,7 +284,8 @@ function _parsePrefixArgs(args) {
     const tok = args[i];
     if (tok === "--name") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--name`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--name`." };
       name = next;
       i += 2;
     } else if (tok === "--reason") {
@@ -311,10 +332,20 @@ function _successViewChannel(original, cloned, executor, reason) {
   return container;
 }
 
-function _successViewCategory(original, cloned, childSuccess, childFailed, failedNames, executor, reason) {
+function _successViewCategory(
+  original,
+  cloned,
+  childSuccess,
+  childFailed,
+  failedNames,
+  executor,
+  reason,
+) {
   const container = new ContainerBuilder();
   container.setAccentColor(
-    childFailed > 0 ? (colors.warning ?? 0xf39c12) : (colors.success ?? 0x2ecc71),
+    childFailed > 0
+      ? (colors.warning ?? 0xf39c12)
+      : (colors.success ?? 0x2ecc71),
   );
   container.addTextDisplayComponents(
     new TextDisplayBuilder().setContent("## Category Cloned"),
@@ -330,7 +361,9 @@ function _successViewCategory(original, cloned, childSuccess, childFailed, faile
     `**Channels Cloned:** ${childSuccess}`,
   ];
   if (childFailed > 0) {
-    lines.push(`**Failed:** ${childFailed} (${failedNames.map((n) => `\`${n}\``).join(", ")})`);
+    lines.push(
+      `**Failed:** ${childFailed} (${failedNames.map((n) => `\`${n}\``).join(", ")})`,
+    );
   }
   lines.push(
     `**Moderator:** ${executor.tag} \`(${executor.id})\``,

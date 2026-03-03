@@ -44,7 +44,8 @@ class CreateChannelCommand extends Command {
     super({
       name: "createchannel",
       description: "Create a text, voice, category, stage, or forum channel",
-      usage: "createchannel <name> [--type text|voice|category|stage|forum|announce] [--in #category] [--topic text] [--nsfw] [--reason text]",
+      usage:
+        "createchannel <name> [--type text|voice|category|stage|forum|announce] [--in #category] [--topic text] [--nsfw] [--reason text]",
       examples: [
         "createchannel general",
         "createchannel general --type text --in #channels",
@@ -91,7 +92,8 @@ class CreateChannelCommand extends Command {
           },
           {
             name: "topic",
-            description: "Channel topic (text/announcement/forum only, max 1024 chars)",
+            description:
+              "Channel topic (text/announcement/forum only, max 1024 chars)",
             type: 3,
             required: false,
           },
@@ -123,21 +125,27 @@ class CreateChannelCommand extends Command {
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
     if (!botMember) {
       return ctx.reply({
-        components: [_errorView("Failed to resolve bot member in this server.")],
+        components: [
+          _errorView("Failed to resolve bot member in this server."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!botMember.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("I do not have permission to manage channels.")],
+        components: [
+          _errorView("I do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
 
     if (!ctx.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return ctx.reply({
-        components: [_errorView("You do not have permission to manage channels.")],
+        components: [
+          _errorView("You do not have permission to manage channels."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -162,7 +170,8 @@ class CreateChannelCommand extends Command {
       }
 
       name = parsed.name;
-      channelType = CHANNEL_TYPE_MAP[parsed.type ?? "text"] ?? ChannelType.GuildText;
+      channelType =
+        CHANNEL_TYPE_MAP[parsed.type ?? "text"] ?? ChannelType.GuildText;
       topic = parsed.topic ?? null;
       nsfw = parsed.nsfw ?? false;
       reason = parsed.reason;
@@ -172,7 +181,9 @@ class CreateChannelCommand extends Command {
         parent = ctx.guild.channels.cache.get(catId) ?? null;
         if (parent && parent.type !== ChannelType.GuildCategory) {
           return ctx.reply({
-            components: [_errorView("`--in` must point to a category channel.")],
+            components: [
+              _errorView("`--in` must point to a category channel."),
+            ],
             flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
           });
         }
@@ -181,7 +192,9 @@ class CreateChannelCommand extends Command {
 
     if (!name || name.length > 100) {
       return ctx.reply({
-        components: [_errorView("Channel name must be between 1 and 100 characters.")],
+        components: [
+          _errorView("Channel name must be between 1 and 100 characters."),
+        ],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }
@@ -198,7 +211,11 @@ class CreateChannelCommand extends Command {
       options.topic = topic.slice(0, 1024);
     }
 
-    if (nsfw && channelType !== ChannelType.GuildVoice && channelType !== ChannelType.GuildCategory) {
+    if (
+      nsfw &&
+      channelType !== ChannelType.GuildVoice &&
+      channelType !== ChannelType.GuildCategory
+    ) {
       options.nsfw = true;
     }
 
@@ -239,7 +256,8 @@ function _parsePrefixArgs(args) {
     const tok = args[i];
     if (tok === "--type") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--type`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--type`." };
       type = next.toLowerCase();
       if (!CHANNEL_TYPE_MAP[type]) {
         return {
@@ -249,7 +267,8 @@ function _parsePrefixArgs(args) {
       i += 2;
     } else if (tok === "--in") {
       const next = args[i + 1];
-      if (!next || next.startsWith("--")) return { error: "Missing value for `--in`." };
+      if (!next || next.startsWith("--"))
+        return { error: "Missing value for `--in`." };
       categoryRef = next;
       i += 2;
     } else if (tok === "--topic") {
@@ -322,7 +341,9 @@ function _errorView(description) {
   const container = new ContainerBuilder();
   container.setAccentColor(colors.error ?? 0xe74c3c);
   container.addTextDisplayComponents(
-    new TextDisplayBuilder().setContent(`## Create Channel Failed\n\n${description}`),
+    new TextDisplayBuilder().setContent(
+      `## Create Channel Failed\n\n${description}`,
+    ),
   );
   return container;
 }

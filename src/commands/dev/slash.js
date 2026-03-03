@@ -34,7 +34,8 @@ class UpdateSlashCommand extends Command {
   constructor() {
     super({
       name: "slash",
-      description: "Registers or updates all slash commands globally (Owner Only)",
+      description:
+        "Registers or updates all slash commands globally (Owner Only)",
       usage: "slash",
       aliases: ["slashupdate", "updateslash"],
       category: "developer",
@@ -50,7 +51,8 @@ class UpdateSlashCommand extends Command {
     );
 
     try {
-      const slashCommandsData = ctx.client.commandHandler.getSlashCommandsData();
+      const slashCommandsData =
+        ctx.client.commandHandler.getSlashCommandsData();
 
       if (!slashCommandsData || slashCommandsData.length === 0) {
         return msg.edit(
@@ -72,7 +74,9 @@ class UpdateSlashCommand extends Command {
       }
 
       if (errors.length > 0) {
-        const lines = [`${emoji.get("cross")} **Validation Failed** — ${errors.length} command(s) have issues:\n`];
+        const lines = [
+          `${emoji.get("cross")} **Validation Failed** — ${errors.length} command(s) have issues:\n`,
+        ];
 
         for (const e of errors) {
           lines.push(`**\`/${e.name}\`**`);
@@ -81,7 +85,10 @@ class UpdateSlashCommand extends Command {
           }
         }
 
-        logger.error("Slash", `Validation failed for ${errors.length} command(s)`);
+        logger.error(
+          "Slash",
+          `Validation failed for ${errors.length} command(s)`,
+        );
         for (const e of errors) {
           logger.error("Slash", `/${e.name}: ${e.issues.join(" | ")}`);
         }
@@ -109,7 +116,10 @@ class UpdateSlashCommand extends Command {
         `${emoji.get("check")} **Done**\nRegistered **${slashCommandsData.length}** commands successfully.\n-# Changes may take up to 1 hour to propagate globally.`,
       );
 
-      logger.success("Slash", `Registered ${slashCommandsData.length} commands.`);
+      logger.success(
+        "Slash",
+        `Registered ${slashCommandsData.length} commands.`,
+      );
     } catch (error) {
       logger.error("Slash", "Registration failed", error);
 
@@ -126,7 +136,7 @@ class UpdateSlashCommand extends Command {
 
 function _validateCommand(cmd, path = "") {
   const errors = [];
-  const cmdPath = path || cmd.name
+  const cmdPath = path || cmd.name;
 
   if (!cmd.name) {
     errors.push(`[${cmdPath}] Missing \`name\`.`);
