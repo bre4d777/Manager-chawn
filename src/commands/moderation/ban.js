@@ -13,6 +13,7 @@ const { colors } = config;
 
 const MAX_DELETE_DAYS = 7;
 const DEFAULT_DELETE_DAYS = 0;
+const MAX_AUDIT_REASON_LENGTH = 512;
 
 class BanCommand extends Command {
   constructor() {
