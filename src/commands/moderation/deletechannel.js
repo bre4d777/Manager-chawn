@@ -87,7 +87,13 @@ class DeleteChannelCommand extends Command {
       const [maybeChannel, ...rest] = ctx.args;
       if (maybeChannel && /^<#\d+>$/.test(maybeChannel)) {
         const id = maybeChannel.replace(/\D/g, "");
-        target = ctx.guild.channels.cache.get(id) ?? ctx.channel;
+        target = ctx.guild.channels.cache.get(id);
+         if (!target) {
+           return ctx.reply({
+             components: [_errorView(`Could not resolve channel ${maybeChannel}.`)],
+             flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+           });
+         }
         reason = rest.join(" ").trim() || "No reason provided";
       } else {
         target = ctx.channel;
