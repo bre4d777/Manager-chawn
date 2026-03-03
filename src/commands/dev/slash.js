@@ -128,7 +128,13 @@ class UpdateSlashCommand extends Command {
         : error.message;
 
       await msg.edit(
-        `${emoji.get("cross")} **Registration Failed**\n\`\`\`\n${detail}\n\`\`\`\nCheck console for full details.`,
+        const text =
+         `${emoji.get("cross")} **Registration Failed**\n\`\`\`\n${detail}\n\`\`\`\nCheck console for full details.`;
+      const chunks = _chunk(text, 1990);
+      await msg.edit(chunks[0]);
+       for (let i = 1; i < chunks.length; i++) { 
+              await ctx.channel?.send(chunks[i]).catch(() => {});
+      }
       );
     }
   }
