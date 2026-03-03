@@ -342,10 +342,9 @@ class IgnoreCommand extends Command {
           return;
         }
 
-        await db.guild.setIgnoredChannels(
-          ctx.guild.id,
-          [...current, ...newChannels].slice(0, 25),
-        );
+        const nextIgnored = [...current, ...newChannels].slice(0, 25);
+        const addedCount = Math.max(0, nextIgnored.length - current.length);
+        await db.guild.setIgnoredChannels(ctx.guild.id, nextIgnored);
 
         const parent = ctx.guild.channels.cache.get(channel.parentId);
         const updated = await db.guild.getIgnoredChannels(ctx.guild.id);
@@ -354,7 +353,10 @@ class IgnoreCommand extends Command {
             this._renderIgnoreEditor(
               ctx,
               updated,
-              `${emoji.check} Added ${newChannels.length} from ${parent?.name || "category"}`,
+              `${emoji.check} Added ${addedCount} from ${parent?.name || "category"}`,
+            ),
+          ],
+        });
             ),
           ],
         });
