@@ -127,7 +127,7 @@ class UpdateSlashCommand extends Command {
         ? _flattenAPIErrors(error.rawError.errors)
         : error.message;
 
-      await msg.edit(
+ 
         const text =
          `${emoji.get("cross")} **Registration Failed**\n\`\`\`\n${detail}\n\`\`\`\nCheck console for full details.`;
       const chunks = _chunk(text, 1990);
