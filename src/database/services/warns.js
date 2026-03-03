@@ -201,7 +201,8 @@ export class WarnService {
    */
   async executePunishment(guild, member, threshold, reason) {
     const { action, duration } = threshold;
-    const auditReason = `Warn threshold reached (${threshold.count} warns) | ${reason}`;
+    const prefix = `Warn threshold reached (${threshold.count} warns) | `;
+    const auditReason = `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 
     if (action === "timeout" && duration) {
       await member.timeout(duration, auditReason);
