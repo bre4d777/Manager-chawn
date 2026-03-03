@@ -244,7 +244,8 @@ function _flattenAPIErrors(errors, path = "") {
   const lines = [];
   for (const [key, val] of Object.entries(errors)) {
     const fullPath = path ? `${path}.${key}` : key;
-    if (val._errors) {
+    if (val && typeof val === "object" && val._errors) {
+     
       for (const e of val._errors) {
         lines.push(`[${fullPath}] ${e.code}: ${e.message}`);
       }
