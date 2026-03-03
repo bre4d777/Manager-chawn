@@ -46,7 +46,11 @@ class IgnoreCommand extends Command {
     }
 
     const ignored = await db.guild.getIgnoredChannels(ctx.guild.id);
-    const container = this._renderIgnoreEditor(ctx, ignored);
+    const trimmedIgnored = ignored.slice(0, 25);
+    if (ignored.length > 25) {
+      await db.guild.setIgnoredChannels(ctx.guild.id, trimmedIgnored);
+    }
+    const container = this._renderIgnoreEditor(ctx, trimmedIgnored);
 
     await ctx.reply({
       components: [container],
@@ -247,19 +251,19 @@ class IgnoreCommand extends Command {
           return;
         }
 
-        await db.guild.setIgnoredChannels(
-          ctx.guild.id,
-          [...current, ctx.channel.id].slice(0, 25),
-        );
+        const newList = (() => {
+          const arr = [...current, ctx.channel.id];
+          return arr.length > 25 ? arr.slice(-25) : arr;
+        })();
+        await db.guild.setIgnoredChannels(ctx.guild.id, newList);
 
         const updated = await db.guild.getIgnoredChannels(ctx.guild.id);
+        const currentFeedback = newList.includes(ctx.channel.id)
+          ? `${emoji.check} Current channel added`
+          : `${emoji.cross} Could not add channel (list full)`;
         await msg.edit({
           components: [
-            this._renderIgnoreEditor(
-              ctx,
-              updated,
-              `${emoji.check} Current channel added`,
-            ),
+            this._renderIgnoreEditor(ctx, updated, currentFeedback),
           ],
         });
 
