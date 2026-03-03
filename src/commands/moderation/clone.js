@@ -253,7 +253,7 @@ class CloneCommand extends Command {
         .setPosition(target.rawPosition + 1, { reason: auditReason })
         .catch(() => {});
     } catch (err) {
-      return ctx.editReply({
+      return ctx.reply({
         components: [_errorView(`Failed to clone channel: ${err.message}`)],
         flags: MessageFlags.IsComponentsV2,
       });

@@ -456,9 +456,12 @@ function _parseMassRoleArgs(args) {
     } else if (tok === "--reason") {
       reasonParts.push(...args.slice(i + 1));
       i = args.length;
+    } else if (tok.startsWith("--")) {
+      return { error: `Unknown option \`${tok}\`.` };
     } else {
-      i++;
+      return { error: `Unexpected token \`${tok}\`. Use \`--reason\` for free text.` };
     }
+  }
   }
 
   return {
