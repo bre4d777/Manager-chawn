@@ -89,7 +89,7 @@ class UnbanCommand extends Command {
               "Please provide a user ID.\n\n**Usage:** `unban <userId> [reason]`",
             ),
           ],
-          flags: MessageFlags.IsComponentsV2,
+          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
         });
       }
 
