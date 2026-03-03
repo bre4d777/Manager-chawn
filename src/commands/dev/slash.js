@@ -135,7 +135,7 @@ class UpdateSlashCommand extends Command {
        for (let i = 1; i < chunks.length; i++) { 
               await ctx.channel?.send(chunks[i]).catch(() => {});
       }
-      );
+      
     }
   }
 }
