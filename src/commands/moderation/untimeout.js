@@ -53,7 +53,7 @@ class UntimeoutCommand extends Command {
       });
     }
 
-    const botMember = await ctx.guild.members.fetchMe();
+    const botMember = await ctx.guild.members.fetchMe().catch(() => {})
 
     if (!botMember.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       return ctx.reply({
@@ -153,11 +153,7 @@ class UntimeoutCommand extends Command {
       });
     }
 
-    const prefix = `Timeout removed by ${ctx.user.tag} (${ctx.user.id}) | `;
-    const maxAuditLen = 512;
-    const safeReason = reason.slice(0, Math.max(0, maxAuditLen - prefix.length));
-    const auditReason = `${prefix}${safeReason}`;
-
+    const auditReason = _buildAuditReason(ctx.user, "Untimeout", reason);
     try {
       await targetMember.timeout(null, auditReason);
     } catch (err) {
@@ -211,5 +207,8 @@ function _errorView(description) {
   );
   return container;
 }
-
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
+}
 export default new UntimeoutCommand();

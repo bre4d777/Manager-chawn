@@ -4,7 +4,7 @@ import { MessageFlags } from "discord.js";
 class PingCommand extends Command {
   constructor() {
     super({
-      name: ["ping"],
+      name: "ping",
       aliases: ["latency", "ms", "pong"],
       cooldown: 30,
       enabledSlash: true,

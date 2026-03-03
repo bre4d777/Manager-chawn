@@ -20,7 +20,7 @@ class NicknameCommand extends Command {
       description: "Set, change, or reset a member's nickname",
       usage: "nickname <user> [nickname]",
       examples: ["nickname @user CoolName", "nickname @user"],
-      aliases: ["nick", "setnick", "resetnick"],
+      aliases: ["nick", "setnick"],
       cooldown: 5,
       permissions: [PermissionFlagsBits.ManageNicknames],
       userPermissions: [PermissionFlagsBits.ManageNicknames],

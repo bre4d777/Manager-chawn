@@ -235,16 +235,13 @@ class PurgeCommand extends Command {
 
     await ctx.deferReply({ ephemeral: true });
 
-    const activeFilterSummary = _buildFilterSummary(filters);
-    const auditReason = `Purge by ${ctx.user.tag} (${ctx.user.id})${activeFilterSummary ? ` [${activeFilterSummary}]` : ""} | ${reason}`;
 
     const result = await _runPurge({
       channel: ctx.channel,
       amount,
       filters,
       invokeId,
-      auditReason,
-    });
+     });
 
     if (result.error) {
       return ctx.editReply({
@@ -262,7 +259,7 @@ class PurgeCommand extends Command {
   }
 }
 
-async function _runPurge({ channel, amount, filters, invokeId, auditReason }) {
+async function _runPurge({ channel, amount, filters, invokeId}) {
   const cutoff = Date.now() - MAX_AGE_MS;
   const eligible = [];
   let tooOld = 0;
@@ -408,6 +405,15 @@ function _parsePrefixArgs(args) {
     }
   }
 
+  const readValue = (flag) => {
+    const next = args[i + 1];
+    if (!next || next.startsWith("--")) {
+      return { error: `Missing value for \`${flag}\`.` };
+    }
+    i += 2;
+    return { value: next };
+  };
+
   while (i < args.length) {
     const tok = args[i];
     if (tok === "--bots") {
@@ -429,14 +435,6 @@ function _parsePrefixArgs(args) {
       filters.links = true;
       i++;
     } else if (tok === "--contains") {
-      const readValue = (flag) => {
-        const next = args[i + 1];
-        if (!next || next.startsWith("--")) {
-          return { error: `Missing value for \`${flag}\`.` };
-        }
-        i += 2;
-        return { value: next };
-      };
       const v = readValue("--contains");
       if (v.error) return { error: v.error };
       filters.contains = v.value;
@@ -468,12 +466,6 @@ function _parsePrefixArgs(args) {
   };
 }
 
-function _buildFilterSummary(filters) {
-  return Object.entries(filters)
-    .filter(([, v]) => v && v !== false)
-    .map(([k, v]) => (typeof v === "string" ? `${k}:${v}` : k))
-    .join(", ");
-}
 
 function _successView(result, filters, executor, reason, channel) {
   const container = new ContainerBuilder();

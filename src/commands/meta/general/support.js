@@ -15,7 +15,7 @@ import { config } from "#config";
 class SupportCommand extends Command {
   constructor() {
     super({
-      name: ["support"],
+      name: "support",
       description: "Join support server",
       aliases: ["help-server", "discord", "server"],
       cooldown: 120,

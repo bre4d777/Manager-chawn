@@ -136,7 +136,11 @@ export const canBotUseVoiceChannel = (voiceChannel) => {
       canView: botPerms.has(PermissionFlagsBits.ViewChannel),
       canConnect: botPerms.has(PermissionFlagsBits.Connect),
       canSpeak: botPerms.has(PermissionFlagsBits.Speak),
-      missing: [],
+      missing: [
+               !botPerms.has(PermissionFlagsBits.ViewChannel) && "View Channel",
+               !botPerms.has(PermissionFlagsBits.Connect) && "Connect",
+               !botPerms.has(PermissionFlagsBits.Speak) && "Speak",
+               ].filter(Boolean),
     };
   } catch (error) {
     return {
@@ -353,7 +357,7 @@ export const validateCommand = async (ctx, command) => {
 /**
  * Returns `true` if `member` is in the same voice channel as the bot.
  * Also returns `true` if the bot has no voice channel and the member is in one
- * (allows the bot to join freely).
+ * (as the bot to join freely).
  * @param {import('discord.js').GuildMember} member
  * @param {import('discord.js').Guild} guild
  * @returns {boolean}

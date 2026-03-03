@@ -66,10 +66,12 @@ class SetProfileCommand extends Command {
       time: 300_000,
       filter: (i) => {
         if (i.user.id !== ctx.author.id) {
-          void i.reply({
-            content: `${emoji.cross} Not your command dude, Use ur own command `,
-            flags: MessageFlags.Ephemeral,
-          }).catch(() => {});
+          void i
+            .reply({
+              content: `${emoji.cross} Not your command dude, Use ur own command `,
+              flags: MessageFlags.Ephemeral,
+            })
+            .catch(() => {});
           return false;
         }
         return true;
@@ -289,13 +291,33 @@ class SetProfileCommand extends Command {
         });
       }
 
-      const response = await fetch(file.url);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      const response = await fetch(file.url, { signal: controller.signal });
+      clearTimeout(timeout);
+
       if (!response.ok) {
         const container = new ContainerBuilder();
         container.setAccentColor(colors.error);
         container.addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             "## Failed to Fetch Image\n\nPlease try again.",
+          ),
+        );
+        return submitted.editReply({
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
+        });
+      }
+
+      const maxBytes = 10 * 1024 * 1024;
+      const contentLength = Number(response.headers.get("content-length") || 0);
+      if (contentLength && contentLength > maxBytes) {
+        const container = new ContainerBuilder();
+        container.setAccentColor(colors.error);
+        container.addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            "## File Too Large\n\nPlease upload an image less than 10MB in size.",
           ),
         );
         return submitted.editReply({
@@ -430,13 +452,33 @@ class SetProfileCommand extends Command {
         });
       }
 
-      const response = await fetch(file.url);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      const response = await fetch(file.url, { signal: controller.signal });
+      clearTimeout(timeout);
+
       if (!response.ok) {
         const container = new ContainerBuilder();
         container.setAccentColor(colors.error);
         container.addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             "## Failed to Fetch Image\n\nPlease try again.",
+          ),
+        );
+        return submitted.editReply({
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
+        });
+      }
+
+      const maxBytes = 10 * 1024 * 1024;
+      const contentLength = Number(response.headers.get("content-length") || 0);
+      if (contentLength && contentLength > maxBytes) {
+        const container = new ContainerBuilder();
+        container.setAccentColor(colors.error);
+        container.addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            "## File Too Large\n\nPlease upload an image less than 10MB in size.",
           ),
         );
         return submitted.editReply({

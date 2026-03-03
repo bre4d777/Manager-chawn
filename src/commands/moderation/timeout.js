@@ -213,7 +213,7 @@ class TimeoutCommand extends Command {
     }
 
     const until = new Date(Date.now() + durationMs);
-    const auditReason = `Timed out by ${ctx.user.tag} (${ctx.user.id}) for ${formatDuration(durationMs)} | ${reason}`;
+    const auditReason = _buildAuditReason(ctx.user, "Timeout", reason);
 
     try {
       await targetMember.timeout(durationMs, auditReason);
@@ -265,6 +265,10 @@ function _errorView(description) {
     new TextDisplayBuilder().setContent(`## Timeout Failed\n\n${description}`),
   );
   return container;
+}
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
 export default new TimeoutCommand();

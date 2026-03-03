@@ -16,7 +16,7 @@ export class WarnService {
   /**
    * Parses a string duration (e.g., "1h", "2d") into milliseconds.
    * Caps the result at 28 days.
-   * @param {string} raw 
+   * @param {string} raw
    * @returns {number|null} Duration in ms, or null if invalid.
    */
   parseDuration(raw) {
@@ -31,7 +31,7 @@ export class WarnService {
 
   /**
    * Converts milliseconds into a human-readable string (e.g., "1d 2h").
-   * @param {number} ms 
+   * @param {number} ms
    * @returns {string}
    */
   formatDuration(ms) {
@@ -71,15 +71,15 @@ export class WarnService {
 
   /**
    * Validates and removes a warning. Returns false if the ID is invalid for the guild.
-   * @param {number|string} id 
+   * @param {number|string} id
    * @returns {Promise<boolean>}
    */
   async removeWarn(id, guildId, userId) {
     const warn = await this.repo.getWarnById(id);
-    if (!warn || warn.guildId !== guildId || warn.userId !== userId) return false;
+    if (!warn || warn.guildId !== guildId || warn.userId !== userId)
+      return false;
     await this.repo.removeWarn(id, guildId, userId);
     return true;
-  }
   }
 
   /**
@@ -98,12 +98,29 @@ export class WarnService {
 
   /**
    * Sets and sorts punishment thresholds.
-   * @param {string} guildId 
-   * @param {Array<Object>} thresholds 
+   * @param {string} guildId
+   * @param {Array<Object>} thresholds
    * @returns {Promise<Array>} Sorted thresholds.
    */
   async setThresholds(guildId, thresholds) {
-    const sorted = [...thresholds].sort((a, b) => a.count - b.count);
+    for (const t of thresholds) {
+      if (!Number.isInteger(t.count) || t.count < 1) {
+        throw new Error("Warn count must be a positive integer");
+      }
+      if (!VALID_ACTIONS.includes(t.action)) {
+        throw new Error(`Invalid action: ${t.action}`);
+      }
+      if (t.action === "timeout" && !t.duration) {
+        throw new Error("Timeout requires a duration");
+      }
+      if (
+        t.action === "timeout" &&
+        (!Number.isInteger(t.duration) || t.duration < 1 || t.duration > MAX_TIMEOUT_MS)
+      ) {
+        throw new Error("Invalid timeout duration");
+      }
+    }
+    const sorted =[...thresholds].sort((a, b) => a.count - b.count);
     await this.repo.setConfig(guildId, sorted);
     return sorted;
   }
@@ -113,10 +130,19 @@ export class WarnService {
    * @throws {Error} If action is invalid or count already exists.
    */
   async addThreshold(guildId, count, action, duration = null) {
+    if (!Number.isInteger(count) || count < 1) {
+      throw new Error("Warn count must be a positive integer");
+    }
     if (!VALID_ACTIONS.includes(action))
       throw new Error(`Invalid action: ${action}`);
     if (action === "timeout" && !duration)
       throw new Error("Timeout requires a duration");
+    if (
+      action === "timeout" &&
+      (!Number.isInteger(duration) || duration < 1 || duration > MAX_TIMEOUT_MS)
+    ) {
+      throw new Error("Invalid timeout duration");
+    }
 
     const config = await this.getConfig(guildId);
     const exists = config.thresholds.find((t) => t.count === count);
@@ -146,8 +172,8 @@ export class WarnService {
 
   /**
    * Finds the highest applicable threshold for a given warning count.
-   * @param {string} guildId 
-   * @param {number} warnCount 
+   * @param {string} guildId
+   * @param {number} warnCount
    * @returns {Promise<Object|null>}
    */
   async resolveThreshold(guildId, warnCount) {

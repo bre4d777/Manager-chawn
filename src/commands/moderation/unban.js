@@ -116,11 +116,7 @@ class UnbanCommand extends Command {
       });
     }
 
-    const prefix = `Unbanned by ${ctx.user.tag} (${ctx.user.id}) | `;
- const maxAuditLen = 512;
-   const safeReason = reason.slice(0, Math.max(0, maxAuditLen - prefix.length));
-   const auditReason = `${prefix}${safeReason}`;
-
+    const auditReason = _buildAuditReason(ctx.user, "Unban", reason);
     try {
       await ctx.guild.members.unban(rawId, auditReason);
     } catch (err) {
@@ -173,6 +169,10 @@ function _errorView(description) {
     new TextDisplayBuilder().setContent(`## Unban Failed\n\n${description}`),
   );
   return container;
+}
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
 export default new UnbanCommand();

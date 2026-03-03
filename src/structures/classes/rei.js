@@ -64,7 +64,6 @@ export class Rei {
    * @returns {this}
    */
   mset(arr) {
-    // Delegate to this.set() so max-capacity eviction and side-effects are honoured.
     const len = arr.length;
     for (let i = 0; i < len; i++) {
       this.set(arr[i][0], arr[i][1]);
@@ -144,7 +143,6 @@ export class Rei {
    * @returns {0|1} 1 if set, 0 if key already existed.
    */
   setnx(k, v) {
-    // Delegate to this.set() so max-capacity eviction is honoured.
     if (!this.$.has(k)) {
       this.set(k, v);
       return 1;
@@ -159,7 +157,6 @@ export class Rei {
    * @returns {boolean} `true` if set, `false` if key already existed.
    */
   setNX(k, v) {
-    // Delegate to this.set() so max-capacity eviction is honoured.
     if (!this.$.has(k)) {
       this.set(k, v);
       return true;
@@ -174,8 +171,6 @@ export class Rei {
    * @returns {number} New value.
    */
   incr(k, d = 1) {
-    // Use this.set() so eviction is honoured.
-    // Use +v (Number coercion) instead of (v | 0) to avoid 32-bit integer truncation.
     const v = this.$.get(k);
     if (v === undefined) {
       this.set(k, d);
@@ -194,7 +189,7 @@ export class Rei {
   /**
    * Decrements a numeric value by `d`.
    * @param {string} k
-   * @param {number} [d=1]
+   * @param {number}[d=1]
    * @returns {number} New value.
    */
   decr(k, d = 1) {
@@ -214,13 +209,13 @@ export class Rei {
   pop(k) {
     const m = this.$;
     const v = m.get(k);
-    if (v !== undefined) m.delete(k);
+    if (m.has(k)) m.delete(k);
     return v;
   }
 
   /**
    * Returns all keys, optionally filtered by a glob-style pattern (`*` wildcard).
-   * @param {string} [pattern='*']
+   * @param {string}[pattern='*']
    * @returns {string[]}
    */
   keys(pattern) {
@@ -228,12 +223,11 @@ export class Rei {
     if (!pattern || pattern === "*") {
       return Array.from(m.keys());
     }
-    // Escape all regex metacharacters except '*', then convert '*' to '.*'.
     const escaped = pattern
       .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
       .replace(/\*/g, ".*");
     const regex = new RegExp(`^${escaped}$`);
-    const matches = [];
+    const matches =[];
     for (const k of m.keys()) {
       if (regex.test(k)) matches.push(k);
     }
@@ -250,8 +244,6 @@ export class Rei {
     return Array.from(this.$.entries());
   }
 
-  // ─── Hash (object) operations ────────────────────────────────────────────────
-
   /**
    * Sets a field on a hash stored at `k`. Initialises the hash if needed.
    * @param {string} k - Hash key.
@@ -263,7 +255,6 @@ export class Rei {
     let h = this.$.get(k);
     if (!h || typeof h !== "object" || Array.isArray(h) || h instanceof Set) {
       h = {};
-      // Use this.set() so max-capacity eviction is enforced on new hash creation.
       this.set(k, h);
     }
     h[f] = v;
@@ -324,7 +315,6 @@ export class Rei {
     let h = this.$.get(k);
     if (!h || typeof h !== "object" || Array.isArray(h) || h instanceof Set) {
       h = {};
-      // Use this.set() so max-capacity eviction is enforced on new hash creation.
       this.set(k, h);
     }
     Object.assign(h, obj);
@@ -359,16 +349,13 @@ export class Rei {
     let h = this.$.get(k);
     if (!h || typeof h !== "object" || Array.isArray(h) || h instanceof Set) {
       h = {};
-      // Use this.set() so max-capacity eviction is enforced on new hash creation.
       this.set(k, h);
     }
     const v = h[f];
-    const n = (v === undefined ? 0 : v | 0) + d;
+    const n = (v === undefined ? 0 : +v) + d;
     h[f] = n;
     return n;
   }
-
-  // ─── Set operations ───────────────────────────────────────────────────────────
 
   /**
    * Adds one or more members to the set at `k`.
@@ -378,7 +365,6 @@ export class Rei {
     let s = this.$.get(k);
     if (!s || !(s instanceof Set)) {
       s = new Set();
-      // Use this.set() so max-capacity eviction is enforced on new Set creation.
       this.set(k, s);
     }
     const len = members.length;
@@ -394,7 +380,7 @@ export class Rei {
    */
   smembers(k) {
     const s = this.$.get(k);
-    return s instanceof Set ? Array.from(s) : [];
+    return s instanceof Set ? Array.from(s) :[];
   }
 
   /**
@@ -420,8 +406,6 @@ export class Rei {
     return this;
   }
 
-  // ─── List operations ──────────────────────────────────────────────────────────
-
   /**
    * Prepends values to the list at `k`.
    * @param {string} k @param {...*} values @returns {number} New list length.
@@ -429,8 +413,7 @@ export class Rei {
   lpush(k, ...values) {
     let arr = this.$.get(k);
     if (!Array.isArray(arr)) {
-      arr = [];
-      // Use this.set() so max-capacity eviction is enforced on new list creation.
+      arr =[];
       this.set(k, arr);
     }
     arr.unshift(...values);
@@ -444,8 +427,7 @@ export class Rei {
   rpush(k, ...values) {
     let arr = this.$.get(k);
     if (!Array.isArray(arr)) {
-      arr = [];
-      // Use this.set() so max-capacity eviction is enforced on new list creation.
+      arr =[];
       this.set(k, arr);
     }
     arr.push(...values);
@@ -476,7 +458,7 @@ export class Rei {
    */
   lrange(k, start, stop) {
     const arr = this.$.get(k);
-    if (!Array.isArray(arr)) return [];
+    if (!Array.isArray(arr)) return[];
     const end = stop === -1 ? arr.length : stop + 1;
     return arr.slice(start, end);
   }
@@ -488,8 +470,6 @@ export class Rei {
     const arr = this.$.get(k);
     return Array.isArray(arr) ? arr.length : 0;
   }
-
-  // ─── Meta ─────────────────────────────────────────────────────────────────────
 
   /** Total number of top-level entries. @type {number} */
   get size() {
@@ -540,14 +520,22 @@ export class ReiT extends Rei {
    * @returns {this}
    */
   set(k, v, ttl) {
-    // Clear any existing timer for this key before writing the new value.
-    // This prevents stale timeouts firing on overwritten or TTL-removed keys.
     const existingTimeout = this.intervals.get(k);
     if (existingTimeout) {
       clearTimeout(existingTimeout);
       this.intervals.delete(k);
       this.ttlMap.delete(k);
     }
+
+    if (this.$.size >= this.max && !this.$.has(k)) {
+      const oldestKey = this.$.keys().next().value;
+      if (oldestKey !== undefined) {
+        clearTimeout(this.intervals.get(oldestKey));
+        this.intervals.delete(oldestKey);
+        this.ttlMap.delete(oldestKey);
+      }
+    }
+
     super.set(k, v);
     if (ttl) {
       this.expire(k, ttl);
@@ -563,6 +551,10 @@ export class ReiT extends Rei {
    * @returns {this}
    */
   expire(k, seconds) {
+    if (!this.$.has(k) || !Number.isFinite(seconds) || seconds <= 0) {
+      return this;
+    }
+
     const existing = this.intervals.get(k);
     if (existing) clearTimeout(existing);
 

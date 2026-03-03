@@ -41,8 +41,8 @@ export class WarnRepository {
   /**
    * Retrieves all warnings for a specific user, ordered by newest first.
    * Results are cached for 5 minutes.
-   * @param {string} guildId 
-   * @param {string} userId 
+   * @param {string} guildId
+   * @param {string} userId
    * @returns {Promise<Object[]>}
    */
   async getWarns(guildId, userId) {
@@ -62,7 +62,7 @@ export class WarnRepository {
 
   /**
    * Fetches a single warning by its internal ID.
-   * @param {number|string} id 
+   * @param {number|string} id
    * @returns {Promise<Object|null>}
    */
   async getWarnById(id) {
@@ -76,9 +76,9 @@ export class WarnRepository {
 
   /**
    * Removes a specific warning and clears relevant cache.
-   * @param {number|string} id 
-   * @param {string} guildId 
-   * @param {string} userId 
+   * @param {number|string} id
+   * @param {string} guildId
+   * @param {string} userId
    */
   async removeWarn(id, guildId, userId) {
     await this.db
@@ -92,12 +92,11 @@ export class WarnRepository {
       );
     await client.c.del(`${WARN_PREFIX}${guildId}:${userId}`);
   }
-  }
 
   /**
    * Clears all warnings for a user within a specific guild.
-   * @param {string} guildId 
-   * @param {string} userId 
+   * @param {string} guildId
+   * @param {string} userId
    */
   async clearWarns(guildId, userId) {
     await this.db
@@ -109,7 +108,7 @@ export class WarnRepository {
   /**
    * Retrieves the punishment thresholds for a guild.
    * Returns a default empty threshold list if no config exists.
-   * @param {string} guildId 
+   * @param {string} guildId
    * @returns {Promise<Object>}
    */
   async getConfig(guildId) {
@@ -131,7 +130,7 @@ export class WarnRepository {
   /**
    * Updates or creates the warning configuration for a guild.
    * Invalidates the guild's config cache.
-   * @param {string} guildId 
+   * @param {string} guildId
    * @param {Array<Object>} thresholds - Array of threshold settings.
    */
   async setConfig(guildId, thresholds) {

@@ -181,7 +181,8 @@ class HackbanCommand extends Command {
     }
 
     const resolvedUser = await ctx.client.users.fetch(rawId).catch(() => null);
-    const auditReason = `Hackbanned by ${ctx.user.tag} (${ctx.user.id}) | ${reason}`;
+
+    const auditReason = _buildAuditReason(ctx.user, "Hackban", reason);
 
     try {
       await ctx.guild.members.ban(rawId, {
@@ -238,6 +239,11 @@ function _errorView(description) {
     new TextDisplayBuilder().setContent(`## Hackban Failed\n\n${description}`),
   );
   return container;
+}
+
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
 export default new HackbanCommand();

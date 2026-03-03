@@ -1,7 +1,11 @@
-import { pgTable, text, timestamp, jsonb, serial } from "drizzle-orm/pg-core";
-
-import { pgTable, text, timestamp, jsonb, serial, index } from "drizzle-orm/pg-core";
-
+import {
+  pgTable,
+  text,
+  timestamp,
+  jsonb,
+  serial,
+  index,
+} from "drizzle-orm/pg-core";
 export const warns = pgTable(
   "warns",
   {

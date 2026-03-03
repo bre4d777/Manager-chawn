@@ -151,7 +151,7 @@ class KickCommand extends Command {
       });
     }
 
-    const auditReason = `Kicked by ${ctx.user.tag} (${ctx.user.id}) | ${reason}`;
+    const auditReason = _buildAuditReason(ctx.user, "Kick", reason);
 
     try {
       await targetMember.kick(auditReason);
@@ -201,6 +201,10 @@ function _errorView(description) {
     new TextDisplayBuilder().setContent(`## Kick Failed\n\n${description}`),
   );
   return container;
+}
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
 export default new KickCommand();

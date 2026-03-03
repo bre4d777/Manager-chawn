@@ -247,10 +247,10 @@ class IgnoreCommand extends Command {
           return;
         }
 
-        await db.guild.setIgnoredChannels(ctx.guild.id, [
-          ...current,
-          ctx.channel.id,
-        ]);
+        await db.guild.setIgnoredChannels(
+          ctx.guild.id,
+          [...current, ctx.channel.id].slice(0, 25),
+        );
 
         const updated = await db.guild.getIgnoredChannels(ctx.guild.id);
         await msg.edit({
@@ -342,10 +342,10 @@ class IgnoreCommand extends Command {
           return;
         }
 
-        await db.guild.setIgnoredChannels(ctx.guild.id, [
-          ...current,
-          ...newChannels,
-        ]);
+        await db.guild.setIgnoredChannels(
+          ctx.guild.id,
+          [...current, ...newChannels].slice(0, 25),
+        );
 
         const parent = ctx.guild.channels.cache.get(channel.parentId);
         const updated = await db.guild.getIgnoredChannels(ctx.guild.id);

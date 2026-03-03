@@ -199,7 +199,7 @@ class BanCommand extends Command {
       });
     }
 
-    const auditReason = `[${ctx.user.tag}] ${reason}`;
+    const auditReason = _buildAuditReason(ctx.user, "Ban", reason);
 
     try {
       await ctx.guild.members.ban(target.id, {
@@ -261,6 +261,11 @@ class BanCommand extends Command {
 
     return container;
   }
+}
+
+function _buildAuditReason(executor, action, reason) {
+  const prefix = `${action} by ${executor.tag} (${executor.id}) | `;
+  return `${prefix}${reason}`.slice(0, MAX_AUDIT_REASON_LENGTH);
 }
 
 export default new BanCommand();
