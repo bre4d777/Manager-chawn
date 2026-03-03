@@ -87,7 +87,6 @@ class TimeoutCommand extends Command {
       });
     }
 
-    const botMember = await ctx.guild.members.fetchMe();
     const botMember = await ctx.guild.members.fetchMe().catch(() => null);
      if (!botMember) {
        return ctx.reply({
