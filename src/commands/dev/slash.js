@@ -250,7 +250,8 @@ function _flattenAPIErrors(errors, path = "") {
         lines.push(`[${fullPath}] ${e.code}: ${e.message}`);
       }
     }
-    if (typeof val === "object" && !val._errors) {
+    if (val && typeof val === "object" && val._errors) {
+     
       lines.push(..._flattenAPIErrors(val, fullPath));
     }
   }
