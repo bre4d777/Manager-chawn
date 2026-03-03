@@ -1,0 +1,1 @@
+CREATE INDEX "warns_guild_user_created_at_idx" ON "warns" USING btree ("guild_id","user_id","created_at");
