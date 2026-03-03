@@ -142,10 +142,25 @@ class RoleBotsCommand extends Command {
       excludeRole = parsed.excludeRoleId
         ? (ctx.guild.roles.cache.get(parsed.excludeRoleId) ?? null)
         : null;
-
+if (parsed.excludeRoleId && !excludeRole) {
+         return ctx.reply({
+          components: [
+            _errorView(`Could not find role for \`--exclude\`: \`${parsed.excludeRoleId}\`.`),
+          ],
+          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        });
+      }
       includeRole = parsed.includeRoleId
         ? (ctx.guild.roles.cache.get(parsed.includeRoleId) ?? null)
         : null;
+        if (parsed.includeRoleId && !includeRole) {
+         return ctx.reply({
+           components: [
+             _errorView(`Could not find role for \`--include\`: \`${parsed.includeRoleId}\`.`),
+           ],
+          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+         });
+       }
     }
 
     const roleError = _validateRole(role, botMember, ctx);

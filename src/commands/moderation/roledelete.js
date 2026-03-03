@@ -167,7 +167,7 @@ class RoleDeleteCommand extends Command {
       await role.delete(auditReason);
     } catch (err) {
       return ctx.reply({
-        components: [_errorView(`Failed to delete role: ${err.message}`)],
+        components: [_errorView(`Failed to delete role: Check role hierarchy and bot permissions`)],
         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
       });
     }

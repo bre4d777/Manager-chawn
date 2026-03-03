@@ -109,6 +109,17 @@ class LockCommand extends Command {
       });
     }
 
+    if (
+      !ctx.member.permissionsIn(target).has(PermissionFlagsBits.ManageChannels)
+    ) {
+      return ctx.reply({
+        components: [
+          _errorView(`You do not have permission to manage ${target}.`),
+        ],
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+      });
+    }
+
     const everyoneId = ctx.guild.roles.everyone.id;
     const existing = target.permissionOverwrites.cache.get(everyoneId);
 

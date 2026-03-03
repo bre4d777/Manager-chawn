@@ -179,6 +179,14 @@ class CreateChannelCommand extends Command {
       if (parsed.categoryRef) {
         const catId = parsed.categoryRef.replace(/\D/g, "");
         parent = ctx.guild.channels.cache.get(catId) ?? null;
+        if (!parent) {
+          return ctx.reply({
+            components: [
+              _errorView("Could not resolve the category provided in `--in`."),
+            ],
+            flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+          });
+        }
         if (parent && parent.type !== ChannelType.GuildCategory) {
           return ctx.reply({
             components: [
