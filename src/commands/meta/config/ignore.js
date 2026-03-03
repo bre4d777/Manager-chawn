@@ -357,9 +357,6 @@ class IgnoreCommand extends Command {
             ),
           ],
         });
-            ),
-          ],
-        });
 
         setTimeout(async () => {
           try {
